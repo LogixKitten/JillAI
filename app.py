@@ -37,11 +37,10 @@ def register():
         username = request.form['username']
         password = request.form['password']
 
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-        # Validate password
+        # Password validation
         if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', password):
-            return "Password must be at least 8 characters long, contain a number, an uppercase letter, a lowercase letter, and a special character."
+            flash("Password must be at least 8 characters long, contain a number, an uppercase letter, a lowercase letter, and a special character.", 'error')
+            return redirect(url_for('register'))
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -50,20 +49,23 @@ def register():
         cursor.execute('SELECT * FROM users WHERE username = %s OR email = %s', (username, email))
         user = cursor.fetchone()
         if user:
-            return "Username or email already exists."
+            flash("Username or email already exists.", 'error')
+            return redirect(url_for('register'))
 
-        # Insert new user into the database
+        # Hash the password and insert new user into the database
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         cursor.execute('INSERT INTO users (first_name, last_name, email, username, password) VALUES (%s, %s, %s, %s, %s)',
                        (first_name, last_name, email, username, hashed_password))
         conn.commit()
         cursor.close()
         conn.close()
 
-        return redirect(url_for('login'))
+        flash('Registration successful! Please log in.', 'success')
+        return redirect(url_for('home'))
 
     return render_template('register.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -83,12 +85,12 @@ def login():
                 return redirect(url_for('chat_room'))
             else:
                 flash('Invalid username or password.')
-                return redirect(url_for('login'))
+                return redirect(url_for('home'))
         else:
             flash('Invalid username or password.')
-            return redirect(url_for('login'))
+            return redirect(url_for('home'))
 
-    return render_template('login.html')
+    return redirect(url_for('home'))
 
 @app.route('/chat_room')
 def chat_room():
@@ -98,3 +100,4 @@ def chat_room():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
