@@ -1,0 +1,15 @@
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-box {
+  flex-grow: 1;
+  width: 100%;
+  min-height: 400px;
+  overflow-y: auto;
+  background-color: #23232c;
+  padding: 10px;
+  border-radius: 10px;
+}
