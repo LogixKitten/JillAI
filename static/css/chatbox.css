@@ -8,6 +8,7 @@
   flex-grow: 1;
   width: 100%;
   min-height: 400px;
+  max-height: 400px;
   overflow-y: auto;
   background-color: #23232c;
   padding: 10px;
