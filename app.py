@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import mysql.connector
 import re
 from flask_bcrypt import Bcrypt
@@ -27,6 +27,10 @@ def get_db_connection():
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/team')
+def team():
+    return render_template('team.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -63,9 +67,9 @@ def register():
         flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('home'))
 
-    return render_template('register.html')
+    return render_template('signup.html')
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -85,18 +89,27 @@ def login():
                 return redirect(url_for('chat_room'))
             else:
                 flash('Invalid username or password.')
-                return redirect(url_for('home'))
+                return redirect(url_for('login'))
         else:
             flash('Invalid username or password.')
-            return redirect(url_for('home'))
+            return redirect(url_for('login'))
 
-    return redirect(url_for('home'))
+    return render_template('login.html')
 
 @app.route('/chat_room')
 def chat_room():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    return "Chat Room Coming Soon!"
+    return render_template('chat.html')
+
+# Route to handle chat messages
+@app.route('/send-message', methods=['POST'])
+def send_message():
+    data = request.get_json()
+    user_message = data.get('message')
+
+    # Logic for AI persona's response
+    ai_response = f"This is a response to: {user_message}"
+
+    return jsonify({'response': ai_response})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

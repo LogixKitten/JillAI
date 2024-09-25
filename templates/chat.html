@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Jill: Your Personal AI Assistant</title>
+    <meta name="description" content="Meet Jill: Your Personal AI Assistant
+Jill is here to simplify your life and help you achieve your best self. With a sleek and modern design, Jill adapts to your unique needs, offering tailored support through customizable personas. Whether you’re looking to stay organized, find quick information, or keep up with the weather, Jill is your go-to solution. Embrace the future of assistance—everyone could use a personal assistant!">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Agbalumo&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope&amp;display=swap">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md sticky-top bg-dark py-3 navbar-dark" id="mainNav">
+        <div class="container"><a class="navbar-brand d-flex align-items-center" href="/"><span class="bs-icon-md shadow-none d-flex justify-content-center align-items-center me-2 bs-icon"><img src="assets/img/Logo.png" width="100" height="104"></span><span class="fw-bolder" style="font-family: 'Amatic SC', serif;font-weight: bold;font-size: 50px;">Jill</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('team') }}">Team</a></li>
+                    <li class="nav-item"></li>
+                </ul><a class="btn btn-primary shadow" role="button" href="{{ url_for('login') }}" style="margin: 20px;">Login</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('register') }}">Sign up</a>
+            </div>
+        </div>
+    </nav>
+    <section class="py-5">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col">
+                    <h1 class="text-center">Chat</h1>
+                </div>
+            </div>
+
+            <!-- Chat Box Section -->
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="chat-container">
+                        <div id="chat-box" class="chat-box">
+                            <!-- Chat messages will appear here -->
+                        </div>
+
+                        <div class="input-container">
+                            <input type="text" id="chat-input" class="form-control" placeholder="Type your message here...">
+                            <button id="send-btn" class="btn btn-primary">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <footer class="bg-dark">
+        <div class="container py-4 py-lg-5">
+            <hr>
+            <div class="text-muted d-flex justify-content-between align-items-center pt-3">
+                <p class="mb-0">Copyright © 2024 Jill</p>
+            </div>
+        </div>
+    </footer>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bold-and-dark.js"></script>
+
+    <!-- JavaScript to handle sending messages -->
+    <script>
+        document.getElementById('send-btn').addEventListener('click', function() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                // Append the user's message to the chat box
+                const chatBox = document.getElementById('chat-box');
+                const userMessage = document.createElement('div');
+                userMessage.classList.add('chat-message', 'text-end');
+                userMessage.innerHTML = `<strong>You:</strong> ${message}`;
+                chatBox.appendChild(userMessage);
+                
+                // Scroll to the bottom
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // Send the message to the Python backend (use AJAX, fetch, or WebSocket)
+                fetch('/send-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Append the AI's response
+                    const aiMessage = document.createElement('div');
+                    aiMessage.classList.add('chat-message', 'text-start');
+                    aiMessage.innerHTML = `<strong>AI:</strong> ${data.response}`;
+                    chatBox.appendChild(aiMessage);
+
+                    // Scroll to the bottom
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                });
+
+                // Clear the input
+                input.value = '';
+            }
+        });
+    </script>
+</body>
+
+</html>
