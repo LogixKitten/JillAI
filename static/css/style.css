@@ -14,3 +14,8 @@
   padding: 10px;
   border-radius: 10px;
 }
+
+.toast-container {
+  position: relative; /* Change to relative for in-flow positioning */
+  margin-top: 10px; /* Adjust this value to move it closer */
+}
