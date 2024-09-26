@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import mysql.connector
 import re
 from flask_bcrypt import Bcrypt
@@ -13,6 +14,15 @@ bcrypt = Bcrypt(app)
 
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+class User(UserMixin):
+    def __init__(self, id, username, email):
+        self.id = id
+        self.username = username
+        self.email = email
+
 # Database configuration
 db_config = {
     'host': 'localhost',
@@ -23,6 +33,10 @@ db_config = {
 
 def get_db_connection():
     return mysql.connector.connect(**db_config)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
 
 @app.route('/')
 def home():
@@ -60,7 +74,7 @@ def register():
         conn.close()
 
         flash('Registration successful! Please log in.', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     return render_template('signup.html')
 
@@ -73,27 +87,53 @@ def login():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
-        user = cursor.fetchone()
+        user_data = cursor.fetchone()
+
         cursor.close()
         conn.close()
 
-        if user:
-            stored_password = user['password']
-            if bcrypt.check_password_hash(stored_password, password.encode('utf-8')):
-                session['username'] = username
-                return redirect(url_for('chat_room'))
-            else:
-                flash('Invalid username or password.')
-                return render_template('login.html')
+        if user_data and bcrypt.check_password_hash(user_data['password_hash'], password):
+            # Create an instance of the User class
+            user = User(id=user_data['id'], username=user_data['username'], email=user_data['email'])
+            login_user(user)  # Now this should work
+            flash('Logged in successfully.', 'success')
+            return redirect(url_for('chat_room'))
         else:
-            flash('Invalid username or password.')
+            flash('Invalid username or password.', 'error')
             return render_template('login.html')
 
     return render_template('login.html')
 
+@login_manager.user_loader
+def load_user(user_id):
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    user_data = cursor.fetchone()
+    
+    cursor.close()
+    connection.close()
+    
+    if user_data:
+        return User(id=user_data['id'], username=user_data['username'], email=user_data['email'])
+    return None
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('home'))
+
+@app.route('/account_settings')
+@login_required
+def account_settings():
+    return render_template('account_settings.html', user=current_user)
+
 @app.route('/chat_room')
+@login_required
 def chat_room():
-    return render_template('chat.html')
+    return render_template('chat.html', user=current_user, first_name=current_user.first_name)
 
 # Route to handle chat messages
 @app.route('/send-message', methods=['POST'])

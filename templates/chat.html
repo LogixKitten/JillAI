@@ -67,6 +67,8 @@ JillAI is here to simplify your life and help you achieve your best self. With a
 
     <!-- JavaScript to handle sending messages -->
     <script>
+        const userName = "{{ first_name|e }}";
+
         document.getElementById('send-btn').addEventListener('click', function() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
@@ -76,7 +78,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                 const chatBox = document.getElementById('chat-box');
                 const userMessage = document.createElement('div');
                 userMessage.classList.add('chat-message', 'text-end');
-                userMessage.innerHTML = `<strong>You:</strong> ${message}`;
+                userMessage.innerHTML = `<strong>${userName}:</strong> ${message}`;
                 chatBox.appendChild(userMessage);
                 
                 // Scroll to the bottom
