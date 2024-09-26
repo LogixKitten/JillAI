@@ -40,7 +40,7 @@ def register():
         email = request.form['email']
         username = request.form['username']
         password = request.form['password']
-        
+
         conn = get_db_connection()
         cursor = conn.cursor()
 
@@ -49,7 +49,7 @@ def register():
         user = cursor.fetchone()
         if user:
             flash("Username or email already exists.", 'error')
-            return redirect(url_for('register'))
+            #return redirect(url_for('register'))
 
         # Hash the password and insert new user into the database
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -84,10 +84,10 @@ def login():
                 return redirect(url_for('chat_room'))
             else:
                 flash('Invalid username or password.')
-                return redirect(url_for('login'))
+                #return redirect(url_for('login'))
         else:
             flash('Invalid username or password.')
-            return redirect(url_for('login'))
+            #return redirect(url_for('login'))
 
     return render_template('login.html')
 
