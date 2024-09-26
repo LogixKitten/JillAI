@@ -40,12 +40,7 @@ def register():
         email = request.form['email']
         username = request.form['username']
         password = request.form['password']
-
-        # Password validation
-        if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', password):
-            flash("Password must be at least 8 characters long, contain a number, an uppercase letter, a lowercase letter, and a special character.", 'error')
-            return redirect(url_for('register'))
-
+        
         conn = get_db_connection()
         cursor = conn.cursor()
 
