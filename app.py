@@ -92,7 +92,7 @@ def login():
         cursor.close()
         conn.close()
 
-        if user_data and bcrypt.check_password_hash(user_data['password_hash'], password):
+        if user_data and bcrypt.check_password_hash(user_data['password'], password):
             # Create an instance of the User class
             user = User(id=user_data['id'], username=user_data['username'], email=user_data['email'])
             login_user(user)  # Now this should work
