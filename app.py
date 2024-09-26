@@ -130,7 +130,8 @@ def logout():
 @app.route('/account_settings')
 @login_required
 def account_settings():
-    return render_template('account_settings.html', user=current_user)
+    #return render_template('account_settings.html', user=current_user)
+    return "Account Settings Page Coming Soon!"
 
 @app.route('/chat_room')
 @login_required

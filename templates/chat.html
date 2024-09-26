@@ -23,8 +23,12 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('team') }}">Team</a></li>
-                    <li class="nav-item"></li>
-                </ul><a class="btn btn-primary shadow" role="button" href="{{ url_for('login') }}" style="margin: 20px;">Login</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('register') }}">Sign up</a>
+                </ul>
+                {% if user.is_authenticated %}
+                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('logout') }}" style="margin: 20px;">Logout</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('account_settings') }}">Account Settings</a>
+                {% else %}
+                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('login') }}" style="margin: 20px;">Login</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('register') }}">Sign up</a>
+                {% endif %}
             </div>
         </div>
     </nav>
