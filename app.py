@@ -84,10 +84,10 @@ def login():
                 return redirect(url_for('chat_room'))
             else:
                 flash('Invalid username or password.')
-                #return redirect(url_for('login'))
+                return redirect(url_for('login'))
         else:
             flash('Invalid username or password.')
-            #return redirect(url_for('login'))
+            return redirect(url_for('login'))
 
     return render_template('login.html')
 
