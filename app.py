@@ -18,8 +18,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 class User(UserMixin):
-    def __init__(self, id, username, email):
+    def __init__(self, id, first_name, last_name, username, email):
         self.id = id
+        self.first_name
+        self.last_name
         self.username = username
         self.email = email
 
@@ -94,7 +96,7 @@ def login():
 
         if user_data and bcrypt.check_password_hash(user_data['password'], password):
             # Create an instance of the User class
-            user = User(id=user_data['id'], username=user_data['username'], email=user_data['email'])
+            user = User(id=user_data['id'], first_name=user_data['first_name'], last_name=user_data['last_name'], username=user_data['username'], email=user_data['email'])
             login_user(user)  # Now this should work
             flash('Logged in successfully.', 'success')
             return redirect(url_for('chat_room'))
