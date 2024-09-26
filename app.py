@@ -117,7 +117,7 @@ def load_user(user_id):
     connection.close()
     
     if user_data:
-        return User(id=user_data['id'], username=user_data['username'], email=user_data['email'])
+        return User(id=user_data['id'], first_name=user_data['first_name'], last_name=user_data['last_name'], username=user_data['username'], email=user_data['email'])
     return None
 
 @app.route('/logout')
