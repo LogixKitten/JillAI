@@ -164,7 +164,7 @@ def handle_message(data):
     room = data['room']
     username = data['username']
     message = data['message']
-    send(f'{username}: {message}', to=room)
+    send(f'Assistant: Responce to {message}', to=room)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
