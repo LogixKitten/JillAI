@@ -5,6 +5,7 @@ import re
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 import os
+from flask_socketio import SocketIO, join_room, leave_room, send
 
 # Load environment variables from .env file
 load_dotenv()
@@ -13,6 +14,9 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
+
+# Initialize Flask-SocketIO
+socketio = SocketIO(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -36,9 +40,10 @@ db_config = {
 def get_db_connection():
     return mysql.connector.connect(**db_config)
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
+#@login_manager.user_loader
+#def load_user(user_id):
+#    return User.get(user_id)
+
 
 @app.route('/')
 def home():
@@ -136,18 +141,30 @@ def account_settings():
 @app.route('/chat_room')
 @login_required
 def chat_room():
+    user_room = f"user_room_{current_user.id}"
     return render_template('chat.html', user=current_user, first_name=current_user.first_name)
 
-# Route to handle chat messages
-@app.route('/send-message', methods=['POST'])
-def send_message():
-    data = request.get_json()
-    user_message = data.get('message')
+# Socket.io events
+@socketio.on('join')
+def on_join(data):
+    username = data['username']
+    room = data['room']
+    join_room(room)
+    send(f'{username} has joined the room.', to=room)
 
-    # Logic for AI persona's response
-    ai_response = f"This is a response to: {user_message}"
+@socketio.on('leave')
+def on_leave(data):
+    username = data['username']
+    room = data['room']
+    leave_room(room)
+    send(f'{username} has left the room.', to=room)
 
-    return jsonify({'response': ai_response})
+@socketio.on('message')
+def handle_message(data):
+    room = data['room']
+    username = data['username']
+    message = data['message']
+    send(f'{username}: {message}', to=room)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

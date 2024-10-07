@@ -68,49 +68,41 @@ JillAI is here to simplify your life and help you achieve your best self. With a
     </footer>
     <script src="static/js/bootstrap.min.js"></script>
     <script src="static/js/bold-and-dark.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 
     <!-- JavaScript to handle sending messages -->
     <script>
+        const socket = io();
         const userName = "{{ first_name|e }}";
+        const userRoom = "{{ room|e }}";
+        
+        // Join the assigned room
+        socket.emit('join', { username: userName, room: userRoom });
 
         document.getElementById('send-btn').addEventListener('click', function() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
             
-            if (message) {
+            if (message && userRoom) {
+                socket.emit('message', { username: userName, message: message, room: userRoom });
+
                 // Append the user's message to the chat box
                 const chatBox = document.getElementById('chat-box');
                 const userMessage = document.createElement('div');
                 userMessage.classList.add('chat-message', 'text-end');
                 userMessage.innerHTML = `<strong>${userName}:</strong> ${message}`;
                 chatBox.appendChild(userMessage);
-                
-                // Scroll to the bottom
-                chatBox.scrollTop = chatBox.scrollHeight;
-
-                // Send the message to the Python backend (use AJAX, fetch, or WebSocket)
-                fetch('/send-message', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Append the AI's response
-                    const aiMessage = document.createElement('div');
-                    aiMessage.classList.add('chat-message', 'text-start');
-                    aiMessage.innerHTML = `<strong>AI:</strong> ${data.response}`;
-                    chatBox.appendChild(aiMessage);
-
-                    // Scroll to the bottom
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                });
-
-                // Clear the input
                 input.value = '';
             }
+        });
+
+        // Receive messages from the server
+        socket.on('message', function(data) {
+            const chatBox = document.getElementById('chat-box');
+            const message = document.createElement('div');
+            message.classList.add('chat-message', 'text-start');
+            message.innerHTML = data;
+            chatBox.appendChild(message);
         });
     </script>
 </body>
