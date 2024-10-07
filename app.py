@@ -16,7 +16,7 @@ bcrypt = Bcrypt(app)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
 # Initialize Flask-SocketIO
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='eventlet')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -142,7 +142,7 @@ def account_settings():
 @login_required
 def chat_room():
     user_room = f"user_room_{current_user.id}"
-    return render_template('chat.html', user=current_user, first_name=current_user.first_name)
+    return render_template('chat.html', user=current_user, first_name=current_user.first_name, room=user_room)
 
 # Socket.io events
 @socketio.on('join')
