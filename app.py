@@ -15,6 +15,10 @@ bcrypt = Bcrypt(app)
 
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
+# Set the SameSite attribute for session cookies
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
+
 # Initialize Flask-SocketIO
 socketio = SocketIO(app, async_mode='eventlet')
 
