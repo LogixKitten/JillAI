@@ -19,23 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 nextButton.disabled = false;  // Enable the "Next" button
             }
         });
-    
-        // Handle modal transition when "Next" button is clicked
-        nextButton.addEventListener('click', function() {
-            // Hide the current modal
-            const currentModal = document.getElementById(`modal-question${index + 1}`);
-            const currentModalInstance = bootstrap.Modal.getInstance(currentModal);
-            if (currentModalInstance) {
-                currentModalInstance.hide();
-            }
             
-            // Show the next modal (if it exists)
-            const nextModal = document.getElementById(`modal-question${index + 2}`);
-            if (nextModal) {
-                const nextModalInstance = new bootstrap.Modal(nextModal);
-                nextModalInstance.show();
-            }
-        });
     });
         
     // Enable "Show Results" button in the last modal
