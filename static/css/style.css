@@ -59,3 +59,67 @@
 .btn-google img {
   vertical-align: middle;
 }
+
+/* For btn_skipQuiz, applying the 'btn-light' style */
+.btn_skipQuiz {
+  display: inline-block;
+  font-weight: 400;
+  color: #212529;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #f8f9fa;
+  border: 1px solid #f8f9fa;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  border-radius: 0.375rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn_skipQuiz:hover {
+  background-color: #e2e6ea;
+  border-color: #dae0e5;
+}
+
+/* For all other buttons, applying the 'btn-primary' style */
+.btn_startQuiz, 
+.next-button-1, 
+.next-button-2, 
+.next-button-3, 
+.next-button-4, 
+.next-button-5, 
+.next-button-6, 
+.next-button-7, 
+.next-button-8, 
+.next-button-9, 
+.show-results-button, 
+.confirm-button {
+  display: inline-block;
+  font-weight: 400;
+  color: #fff;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #0d6efd;
+  border: 1px solid #0d6efd;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  border-radius: 0.375rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn_startQuiz:hover, 
+.next-button-1:hover, 
+.next-button-2:hover, 
+.next-button-3:hover, 
+.next-button-4:hover, 
+.next-button-5:hover, 
+.next-button-6:hover, 
+.next-button-7:hover, 
+.next-button-8:hover, 
+.next-button-9:hover, 
+.show-results-button:hover, 
+.confirm-button:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
