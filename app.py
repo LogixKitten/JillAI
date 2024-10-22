@@ -22,17 +22,17 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 class User(UserMixin):
-    def __init__(self, user_id, first_name, last_name, username, email, gender):
-        self.id = user_id  # This is the 'user_id' from the Users table
-        self.first_name = first_name
-        self.last_name = last_name
-        self.username = username
+    def __init__(self, user_id, FirstName, LastName, Username, email, Gender):
+        self.user_id = user_id  # This is the 'user_id' from the Users table
+        self.FirstName = FirstName
+        self.LastName = LastName
+        self.Username = Username
         self.email = email
-        self.gender = gender
+        self.Gender = Gender
 
     def get_id(self):
         """Flask-Login requires this method to return the user's ID."""
-        return str(self.id)  # Return the primary key (user_id) as a string
+        return str(self.user_id)  # Return the primary key (user_id) as a string
 
 
 # Database configuration
@@ -82,7 +82,7 @@ def validate_username():
     cursor = connection.cursor()
 
     # Query the Users table to check if the username already exists
-    cursor.execute("SELECT * FROM Users WHERE userName = %s", (userName,))
+    cursor.execute("SELECT * FROM Users WHERE Username = %s", (userName,))
     userName_exists = cursor.fetchone() is not None
 
     # Close the connection
@@ -144,11 +144,11 @@ def register():
             # Create an instance of the User class and log the user in
             user = User(
                 user_id=user_id,
-                first_name=firstName,
-                last_name=lastName,
-                username=userName,
+                FirstName=firstName,
+                LastName=lastName,
+                Username=userName,
                 email=email,
-                gender=gender
+                Gender=gender
             )
             
             login_user(user)  # Log the user in
@@ -183,11 +183,11 @@ def login():
             # Create an instance of the User class with gender
             user = User(
                 user_id=user_data['user_id'],
-                first_name=user_data['FirstName'],
-                last_name=user_data['LastName'],
-                username=user_data['Username'],
+                FirstName=user_data['FirstName'],
+                LastName=user_data['LastName'],
+                Username=user_data['Username'],
                 email=user_data['email'],
-                gender=user_data['Gender']  # Add gender to the user object
+                Gender=user_data['Gender']  # Add gender to the user object
             )
             
             # Log the user in using Flask-Login's login_user function
@@ -213,7 +213,7 @@ def update_preferences():
         ui_mode = data.get('UImode')
 
         # Get the current user's ID from Flask-Login
-        user_id = current_user.id
+        user_id = current_user.user_id
 
         # Establish a database connection
         connection = get_db_connection()
@@ -258,7 +258,7 @@ def update_preferences():
 def get_preferences():
     try:
         # Get the current user's ID from Flask-Login
-        user_id = current_user.id
+        user_id = current_user.user_id
 
         # Establish a database connection
         connection = get_db_connection()
@@ -294,7 +294,7 @@ def load_user(user_id):
     connection.close()
     
     if user_data:
-        return User(id=user_data['id'], first_name=user_data['first_name'], last_name=user_data['last_name'], username=user_data['username'], email=user_data['email'], gender=user_data['Gender'])
+        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], Gender=user_data['Gender'])
     return None
 
 @app.route('/logout')
@@ -323,8 +323,8 @@ def privacy_policy():
 @app.route('/chat_room')
 @login_required
 def chat_room():
-    user_room = f"user_room_{current_user.id}"
-    return render_template('chat.html', user=current_user, first_name=current_user.first_name, room=user_room)
+    user_room = f"user_room_{current_user.user_id}"
+    return render_template('chat.html', user=current_user, FirstName=current_user.FirstName, room=user_room)
 
 # Socket.io events
 @socketio.on('join')
