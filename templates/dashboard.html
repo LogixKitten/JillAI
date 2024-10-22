@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Team - Jill</title>
+    <meta name="description" content="Meet Jill: Your Personal AI Assistant
+Jill is here to simplify your life and help you achieve your best self. With a sleek and modern design, Jill adapts to your unique needs, offering tailored support through customizable personas. Whether you’re looking to stay organized, find quick information, or keep up with the weather, Jill is your go-to solution. Embrace the future of assistance—everyone could use a personal assistant!">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap/css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Agbalumo&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope&amp;display=swap">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md sticky-top bg-dark py-3 navbar-dark" id="mainNav">
+        <div class="container"><a class="navbar-brand d-flex align-items-center" href="/"><span class="bs-icon-md shadow-none d-flex justify-content-center align-items-center me-2 bs-icon"><img src="static/img/Logo.png" width="100" height="104"></span><span class="fw-bolder" style="font-family: 'Amatic SC', serif;font-weight: bold;font-size: 50px;">JillAI</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('team') }}">Team</a></li>
+                </ul>
+                {% if current_user.is_authenticated %}
+                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('logout') }}" style="margin: 20px;">Logout</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('account_settings') }}">Account Settings</a>
+                {% else %}
+                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('login') }}" style="margin: 20px;">Login</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('register') }}">Sign up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-personality_quiz_start">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;">Your account has been successfully created!</p>
+                    <p style="text-align: center;">This next part is optional, however we do recommend you complete this short 10-question quiz so that we can help you find the best Personal Assistant for your needs.</p>
+                    <p style="text-align: center;">We promise, it will be quick!</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn_skipQuiz" type="button" data-bs-dismiss="modal">
+                        Skip
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+
+                    </div>
+                    <button class="btn_startQuiz" type="button" data-bs-target="#modal-question1" data-bs-toggle="modal">
+                        Start Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-question1">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">
+                        Personality Quiz
+                    </h3>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;font-size: 23px;">Question 1 of 10:</p>
+                    <p style="text-align: center;font-size: 18px;">How would you most likely spend your ideal weekend?</p>
+
+                    <form id="form-1">
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question1" value="1"> Keeping up with the latest trends and hanging out with friends
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question1" value="2"> Working on a personal project or getting organized for the week
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question1" value="3"> Relaxing with a book, movie, or quiet time alone
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question1" value="4"> Reflecting on experiences or spending quality time with loved ones
+                        </label>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+                    </div>
+
+                    <button class="next-button-1" type="button" data-bs-target="#modal-question2" data-bs-toggle="modal" disabled>
+                        Next
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-question2">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;font-size: 23px;">Question 2 of 10:</p>
+                    <p style="text-align: center;font-size: 18px;">What’s most important to you in a conversation?</p>
+
+                    <form id="form-2">
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question2" value="1"> Playfulness and energy, with some jokes along the way
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question2" value="2"> Straightforward communication with clear, efficient answers
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question2" value="3"> Friendly and supportive guidance that makes me feel heard
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question2" value="4"> Thoughtful advice with room for creativity and exploration
+                        </label>
+                    </form>
+                    
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+
+                    <button class="next-button-2" type="button" data-bs-target="#modal-question3" data-bs-toggle="modal" disabled>
+                        Next
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-question3">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;font-size: 23px;">Question 3 of 10:</p>
+                    <p style="text-align: center;font-size: 18px;">How do you approach your tasks and challenges?</p>
+                    
+                    <form id="form-3">
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question3" value="1"> I like to make things fun with humor and jokes, even while working
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question3" value="2"> I enjoy a mix of lighthearted moments and focused efforts
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question3" value="3"> I prefer to stay serious and get things done efficiently
+                        </label>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+
+                    <button class="next-button-3" type="button" data-bs-target="#modal-question4" data-bs-toggle="modal" disabled>
+                        Next
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-question4">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;font-size: 23px;">Question 4 of 10:</p>
+                    <p style="text-align: center;font-size: 18px;">How do you feel about using new technology?</p>
+
+                    <form id="form-4">
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question4" value="1"> I love trying out new apps, gadgets, and tech tools
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question4" value="2"> I’m comfortable with technology but prefer to keep things simple
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question4" value="3"> I prefer not to use technology unless necessary
+                        </label>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+
+                    <button class="next-button-4" type="button" data-bs-target="#modal-question5" data-bs-toggle="modal" disabled>
+                        Next
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-question5">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;font-size: 23px;">Question 5 of 10:</p>
+                    <p style="text-align: center;font-size: 20px;">When working through something challenging, what’s most helpful to you?</p>
+                    
+                    <form id="form-5">
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question5" value="1"> Encouragement and emotional support that keeps me motivated
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question5" value="2"> A balance of emotional encouragement and practical advice
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question5" value="3"> Clear, direct guidance on how to solve the problem
+                        </label>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+
+                    <button class="next-button-5" type="button" data-bs-target="#modal-question6" data-bs-toggle="modal" disabled>
+                        Next
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-question6">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;font-size: 23px;">Question 6 of 10:</p>
+                    <p style="text-align: center;font-size: 18px;">How do you usually react when things get stressful?</p>
+
+                    <form id="form-6">
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question6" value="1"> I make light of the situation and try to laugh it off
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question6" value="2"> I try to stay calm and break things into smaller tasks
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question6" value="3"> I focus on finding a practical solution and getting things done
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question6" value="4"> I look for wise or comforting advice to help me through
+                        </label>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+
+                    <button class="next-button-6" type="button" data-bs-target="#modal-question7" data-bs-toggle="modal" disabled>
+                        Next
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-question7">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;font-size: 23px;">Question 7 of 10:</p>
+                    <p style="text-align: center;font-size: 18px;">What describes your approach to problem-solving?</p>
+
+                    <form id="form-7">
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question7" value="1"> I love thinking creatively and exploring new ideas
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question7" value="2"> I enjoy creative ideas but need some structure too
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question7" value="3"> I prefer a more logical and practical approach to problem-solving
+                        </label>                        
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+
+                    <button class="next-button-7" type="button" data-bs-target="#modal-question8" data-bs-toggle="modal" disabled>
+                        Next
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-question8">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;font-size: 23px;">Question 8 of 10:</p>
+                    <p style="text-align: center;font-size: 18px;">Which of these words best describes you?</p>
+
+                    <form id="form-8">
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question8" value="1"> Energetic and outgoing
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question8" value="2"> Calm and steady
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question8" value="3"> Nurturing and supportive
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question8" value="4"> Logical and analytical
+                        </label>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+
+                    <button class="next-button-8" type="button" data-bs-target="#modal-question9" data-bs-toggle="modal" disabled>
+                        Next
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-question9">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;font-size: 23px;">Question 9 of 10:</p>
+                    <p style="text-align: center;font-size: 20px;">How do you feel about collaborating with people from different backgrounds?</p>
+
+                    <form id="form-9">
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question9" value="1"> I thrive in diverse environments with lots of different perspectives
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question9" value="2"> I’m open to diversity but prefer familiar settings
+                        </label>
+                        <label style="font-size: 12px;">
+                            <input type="radio" name="question9" value="3"> I prefer a focused, straightforward approach without too many distractions
+                        </label>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+
+                    <button class="next-button-9" type="button" data-bs-target="#modal-question10" data-bs-toggle="modal" disabled>
+                        Next
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-question10">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center;font-size: 23px;">Question 10 of 10:</p>
+                    <p style="text-align: center;font-size: 18px;">When working toward a long-term goal, which approach resonates most with you?</p>
+
+                    <form id="form-10">
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question10" value="1"> I create detailed plans and follow them step-by-step
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question10" value="2"> I set some structure but leave room for flexibility and creativity
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question10" value="3"> I focus on the big picture and adjust as I go along
+                        </label>
+                        <label style="font-size: 13px;">
+                            <input type="radio" name="question10" value="4"> I like to take things one day at a time and see where they lead me
+                        </label>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+
+                    <button class="show-results-button" type="button" data-bs-target="#modal-quizResults" data-bs-toggle="modal" disabled>
+                        Show Results
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-quizResults">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <h3 class="modal-title" style="position: static;font-family: 'Annie Use Your Telescope', serif;font-size: 50px;color: var(--bs-form-valid-color);">Personality Quiz</h3>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <!-- This is where the persona radio group will be placed dynamically -->
+                    <div id="modal-12-recommendations"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="col">
+                        <div></div>
+                    </div>
+
+                    <button class="confirm-button" type="button" disabled>
+                        Confirm
+                    </button>
+
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="py-5">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col">
+                    <h1 class="text-center" style="color: rgb(141,251,207);font-family: 'Annie Use Your Telescope', serif;font-weight: bold;">USER&nbsp;DASHBOARD</h1>
+                    <p style="text-align: center;">Welcome &lt;firstName&gt;!</p>
+                    <hr>
+                    <div>
+                        <p>[check if TokenID = 0 in the Token table of the database. If it is, inform user that Google Authentication is needed to start chatting with their personal assistant and display a button to Connect To Google (OAuth). Else, display a button to Begin Chat.]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="bg-dark">
+        <div class="container py-4 py-lg-5">
+            <hr>
+            <div class="text-muted d-flex justify-content-between align-items-center pt-3">
+                <p class="mb-0"><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>&nbsp; &nbsp;-&nbsp; &nbsp;Copyright © 2024 JillAI</p>
+            </div>
+        </div>
+    </footer>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bold-and-dark.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+    <script src="assets/js/quiz.js"></script>
+</body>
+
+</html>

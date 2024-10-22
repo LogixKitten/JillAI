@@ -13,6 +13,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Agbalumo&amp;display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700&amp;display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope&amp;display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 
 <body>
@@ -27,6 +28,125 @@ JillAI is here to simplify your life and help you achieve your best self. With a
             </div>
         </div>
     </nav>
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-1">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <div class="col">
+                        <h4 class="modal-title" style="position: static;text-align: center;color: rgb(114,255,199);font-family: 'Amatic SC', serif;font-size: 30px;">Account Setup</h4>
+                    </div>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size: 15px;text-align: center;">Great to have you join JillAI! Account setup is a one time thing that will help us give you a seamless experience. It is only a handful of questions for you, so please be patient with us.</p>
+                    <p style="text-align: center;">First thing we need, what name should we know you as?</p>
+                    <form><input class="form-control" type="text" style="position: relative;display: block;" name="firstName" placeholder="First Name" required="">
+                        <hr style="opacity: 0;"><input class="form-control" type="text" placeholder="Last Name" name="lastName" required="">
+                    </form>
+                    <div></div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <div class="col">
+                        <div></div>
+                    </div><button class="btn btn-primary" type="button" data-bs-target="#modal-2" data-bs-toggle="modal">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-2">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <div class="col">
+                        <h4 class="modal-title" style="position: static;text-align: center;color: rgb(114,255,199);font-family: 'Amatic SC', serif;font-size: 30px;">Account Setup</h4>
+                    </div>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size: 15px;text-align: center;">Got it! Thanks &lt;firstName&gt;!</p>
+                    <p style="text-align: center;">Next we need to know your date of birth for our records. Don't worry, your data is secured and will never be shared!</p>
+                    <form><input class="form-control" type="date" required="" name="dateOfBirth"></form>
+                    <div></div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <div class="col">
+                        <div></div>
+                    </div><button class="btn btn-primary" type="button" data-bs-target="#modal-3" data-bs-toggle="modal">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-3">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <div class="col">
+                        <h4 class="modal-title" style="position: static;text-align: center;color: rgb(114,255,199);font-family: 'Amatic SC', serif;font-size: 30px;">Account Setup</h4>
+                    </div>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size: 15px;text-align: center;">Okay, thank you for that &lt;firstName&gt;.</p>
+                    <p style="text-align: center;">The next thing we need to know is, what gender are you?</p>
+                    <form>
+                        <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" name="gender" value="1"><label class="form-check-label" for="formCheck-1">Male</label></div>
+                        <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="gender" value="2"><label class="form-check-label" for="formCheck-2">Female</label></div>
+                        <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3" name="gender" value="3"><label class="form-check-label" for="formCheck-3">Non-Binary</label></div>
+                        <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-4" name="gender" value="4"><label class="form-check-label" for="formCheck-4">Other</label></div>
+                    </form>
+                    <div></div><small>(This question helps us determine what pronouns to refer to you by)</small>
+                </div>
+                <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <div class="col">
+                        <div></div>
+                    </div><button class="btn btn-primary" type="button" data-bs-target="#modal-4" data-bs-toggle="modal">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-4">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col">
+                        <div></div>
+                    </div>
+                    <div class="col">
+                        <h4 class="modal-title" style="position: static;text-align: center;color: rgb(114,255,199);font-family: 'Amatic SC', serif;font-size: 30px;">Account Setup</h4>
+                    </div>
+                    <div class="col">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size: 15px;text-align: center;">Good to know &lt;firstName&gt;.</p>
+                    <p style="text-align: center;">In order to enable your assistant to give you accurate weather updates, we will need to know what zip code you would like your home forecast to be. Please provide us with your preferred 5-digit zip code.</p>
+                    <form><input class="form-control" type="text" required="" placeholder="Zip Code" name="zipCode" minlength="5" maxlength="5" pattern="\d{5}"></form>
+                    <div></div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <div class="col">
+                        <div></div>
+                    </div><button class="btn btn-primary" type="button" id="submitFormButton">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <section class="py-5">
         <div class="container py-5">
             <div class="row mb-4 mb-lg-5">
@@ -62,11 +182,20 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                                     {% endwith %}
                                     </div>
                                 </div>
-                                <div class="mb-3"><input class="form-control" type="text" name="first_name" placeholder="First Name" required=""></div>
-                                <div class="mb-3"><input class="form-control" type="text" name="last_name" placeholder="Last Name" required=""></div>
-                                <div class="mb-3"><input class="form-control" type="email" name="email" placeholder="Email" required=""></div>
-                                <div class="mb-3"><input class="form-control" type="text" name="username" placeholder="User Name" required="" minlength="4"></div>
-                                <div class="mb-3"><input class="form-control" type="password" name="password" placeholder="Password" required="" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&amp;])[A-Za-z\d@$!%*?&amp;]{8,}"></div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email address</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                    <div class="invalid-feedback">This email is already taken.</div>
+                                    <div class="valid-feedback">Email is available!</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="userName" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="userName" name="userName" minlength="4" required>
+                                    <div class="invalid-feedback">This username is already taken.</div>
+                                    <div class="valid-feedback">Username is available!</div>
+                                </div>
+                                <div class="mb-3"><input class="form-control" type="password" name="password" placeholder="Password" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&amp;])[A-Za-z\d@$!%*?&amp;]{8,}"></div>
                                 <div class="mb-3"><button class="btn btn-primary shadow d-block w-100" type="submit">Sign up</button></div>
                                 <p class="text-muted">Already have an account?&nbsp;<a href="{{ url_for('login') }}">Log in</a></p>
                             </form>
@@ -80,13 +209,14 @@ JillAI is here to simplify your life and help you achieve your best self. With a
         <div class="container py-4 py-lg-5">
             <hr>
             <div class="text-muted d-flex justify-content-between align-items-center pt-3">
-                <p class="mb-0">Copyright © 2024 JillAI</p>
+                <p class="mb-0"><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>&nbsp; &nbsp;-&nbsp; &nbsp;Copyright © 2024 JillAI</p>
             </div>
         </div>
     </footer>
     <script src="static/js/bootstrap.min.js"></script>
     <script src="static/js/bold-and-dark.js"></script>
     <script src="static/js/toast.js"></script>
+    <script src="static/js/validation.js"></script>
 </body>
 
 </html>
