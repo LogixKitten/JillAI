@@ -23,12 +23,17 @@ document.addEventListener("DOMContentLoaded", function() {
         // Handle modal transition when "Next" button is clicked
         nextButton.addEventListener('click', function() {
             // Hide the current modal
-            $(`#modal-question${index + 1}`).modal('hide');
+            const currentModal = document.getElementById(`modal-question${index + 1}`);
+            const currentModalInstance = bootstrap.Modal.getInstance(currentModal);
+            if (currentModalInstance) {
+                currentModalInstance.hide();
+            }
             
             // Show the next modal (if it exists)
-            const nextModal = document.querySelector(`#modal-question${index + 2}`);
+            const nextModal = document.getElementById(`modal-question${index + 2}`);
             if (nextModal) {
-                $(`#modal-question${index + 2}`).modal('show');
+                const nextModalInstance = new bootstrap.Modal(nextModal);
+                nextModalInstance.show();
             }
         });
     });
