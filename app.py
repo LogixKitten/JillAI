@@ -287,14 +287,14 @@ def get_preferences():
 def load_user(user_id):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    cursor.execute("SELECT * FROM Users WHERE id = %s", (user_id,))
     user_data = cursor.fetchone()
     
     cursor.close()
     connection.close()
     
     if user_data:
-        return User(id=user_data['id'], first_name=user_data['first_name'], last_name=user_data['last_name'], username=user_data['username'], email=user_data['email'])
+        return User(id=user_data['id'], first_name=user_data['first_name'], last_name=user_data['last_name'], username=user_data['username'], email=user_data['email'], gender=user_data['Gender'])
     return None
 
 @app.route('/logout')
@@ -313,8 +313,7 @@ def account_settings():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    #return render_template('dashboard.html', user=current_user)
-    return "Dashboard Coming Soon!"
+    return render_template('dashboard.html', user=current_user)
 
 @app.route('/privacy_policy')
 def privacy_policy():
