@@ -329,13 +329,10 @@ def dashboard():
     # Query to fetch the TokenID for the current user
     query = "SELECT TokenID FROM Token WHERE user_id = %s"
     cursor.execute(query, (current_user.user_id,))
-    token = cursor.fetchone()
-
-    # Debugging: Check what token is fetched (optional for troubleshooting)
-    print(f"Token fetched from DB: {token}")
+    token = cursor.fetchone()    
 
     # Since TokenID is set to 0 by default at registration, we only check if it's 0
-    token_required = (token['TokenID'] == 0)
+    token_required = (token['TokenID'] == "0")
     
     # Close the cursor and connection
     cursor.close()
