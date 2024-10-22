@@ -1,37 +1,29 @@
-// Function to capture the first name from modal-1 and store it in localStorage
-function captureName() {
-    const firstName = document.getElementById('firstNameInput').value;
+// Store the firstName in sessionStorage when the user leaves the first name input field (blur event)
+document.querySelector("input[name='firstName']").addEventListener('blur', function () {
+    const firstName = this.value.trim(); // Trim spaces to avoid empty entries
+
     if (firstName) {
-        // Store the first name in localStorage
-        localStorage.setItem('firstName', firstName);
+        sessionStorage.setItem('firstName', firstName);
+        
+        // Call the function to update all modals that reference firstName
+        updateFirstNameInModals();
+    }
+});
+
+// Function to dynamically update all modals with firstName
+function updateFirstNameInModals() {
+    const firstName = sessionStorage.getItem('firstName');
+    
+    if (firstName) {
+        // Select all elements with the class "replace-firstName"
+        const nameElements = document.querySelectorAll('.replace-firstName');
+        nameElements.forEach(function (element) {
+            element.textContent = firstName;
+        });
     }
 }
 
-// Function to dynamically replace <firstName> in the modal content
-function populateNameInModal(modalId) {
-    const firstName = localStorage.getItem('firstName');
-    if (firstName) {
-        const modal = document.getElementById(modalId);
-        const modalBody = modal.querySelector('.modal-body').innerHTML;
-        // Replace all occurrences of <firstName> with the actual firstName
-        modal.querySelector('.modal-body').innerHTML = modalBody.replace(/<firstName>/g, firstName);
-    }
-}
-
-// Event listener for when modal-1's "Next" button is clicked
-document.querySelector('#modal-1 .btn-primary').addEventListener('click', function() {
-    captureName();
-});
-
-// Event listeners to populate the name in modal-2, modal-3, and modal-4
-document.querySelector('#modal-2').addEventListener('show.bs.modal', function() {
-    populateNameInModal('modal-2');
-});
-
-document.querySelector('#modal-3').addEventListener('show.bs.modal', function() {
-    populateNameInModal('modal-3');
-});
-
-document.querySelector('#modal-4').addEventListener('show.bs.modal', function() {
-    populateNameInModal('modal-4');
+// Run this function as soon as the document is ready, in case the user reloads the page
+document.addEventListener('DOMContentLoaded', function () {
+    updateFirstNameInModals();
 });
