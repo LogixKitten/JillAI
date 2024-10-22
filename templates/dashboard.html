@@ -30,7 +30,7 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('team') }}">Team</a></li>
                 </ul>
                 {% if current_user.is_authenticated %}
-                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('logout') }}" style="margin: 20px;">Logout</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('account_settings') }}">Account Settings</a>
+                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('dashboard') }}" style="margin: 20px;">Dashboard</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('logout') }}" style="margin: 20px;">Logout</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('account_settings') }}">Account Settings</a>
                 {% else %}
                     <a class="btn btn-primary shadow" role="button" href="{{ url_for('login') }}" style="margin: 20px;">Login</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('register') }}">Sign up</a>
                 {% endif %}
@@ -51,7 +51,7 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <p style="text-align: center;">Your account has been successfully created!</p>
+                    <p style="text-align: center;">{{ current_user.FirstName }}, your account has been successfully created!</p>
                     <p style="text-align: center;">This next part is optional, however we do recommend you complete this short 10-question quiz so that we can help you find the best Personal Assistant for your needs.</p>
                     <p style="text-align: center;">We promise, it will be quick!</p>
                 </div>
@@ -562,6 +562,7 @@
                 </div>
 
                 <div class="modal-body">
+                    <h3>Here are your recommended assistants, {{ current_user.FirstName }}!</h3>
                     <!-- This is where the persona radio group will be placed dynamically -->
                     <div id="modal-12-recommendations"></div>
                 </div>
@@ -588,10 +589,27 @@
             <div class="row">
                 <div class="col">
                     <h1 class="text-center" style="color: rgb(141,251,207);font-family: 'Annie Use Your Telescope', serif;font-weight: bold;">USER&nbsp;DASHBOARD</h1>
-                    <p style="text-align: center;">Welcome &lt;firstName&gt;!</p>
+                    <p style="text-align: center;">Welcome {{ current_user.FirstName }}!</p>
                     <hr>
                     <div>
-                        <p>[check if TokenID = 0 in the Token table of the database. If it is, inform user that Google Authentication is needed to start chatting with their personal assistant and display a button to Connect To Google (OAuth). Else, display a button to Begin Chat.]</p>
+                    {% if token_required %}
+                        <!-- Display message and button for Google OAuth -->
+                        <p style="text-align: center;">
+                            You need to connect to Google to start chatting with your assistant.
+                        </p>
+                        <div class="text-center">
+                            <a href="{{ url_for('google_auth') }}" class="btn btn-google">
+                                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" style="width: 20px; height: 20px; margin-right: 8px;">
+                                Sign in with Google
+                            </a>
+                        </div>
+                    {% else %}
+                        <!-- Display button to begin chat -->
+                        <div class="text-center">
+                            <a href="{{ url_for('chat') }}" class="btn btn-success">Begin Chat</a>
+                        </div>
+                    {% endif %}
+                    
                     </div>
                 </div>
             </div>
@@ -600,8 +618,8 @@
     <footer class="bg-dark">
         <div class="container py-4 py-lg-5">
             <hr>
-            <div class="text-muted d-flex justify-content-between align-items-center pt-3">
-                <p class="mb-0"><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>&nbsp; &nbsp;-&nbsp; &nbsp;Copyright © 2024 JillAI</p>
+            <div class="text-muted d-flex justify-content-between align-items-center">
+                <p class="mb-0"><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a> &nbsp;-&nbsp;<a href="{{ url_for('tos') }}">Terms Of Service</a> &nbsp;-&nbsp; Copyright © 2024 JillAI</p>
             </div>
         </div>
     </footer>

@@ -47,7 +47,7 @@
                 <div class="modal-body">
                     <p style="font-size: 15px;text-align: center;">Great to have you join JillAI! Account setup is a one time thing that will help us give you a seamless experience. It is only a handful of questions for you, so please be patient with us.</p>
                     <p style="text-align: center;">First thing we need, what name should we know you as?</p>
-                    <form><input class="form-control" type="text" style="position: relative;display: block;" name="firstName" placeholder="First Name" required="">
+                    <form><input class="form-control" type="text" style="position: relative;display: block;" id="firstNameInput" name="firstName" placeholder="First Name" required="">
                         <hr style="opacity: 0;"><input class="form-control" type="text" placeholder="Last Name" name="lastName" required="">
                     </form>
                     <div></div>
@@ -208,8 +208,8 @@
     <footer class="bg-dark">
         <div class="container py-4 py-lg-5">
             <hr>
-            <div class="text-muted d-flex justify-content-between align-items-center pt-3">
-                <p class="mb-0"><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>&nbsp; &nbsp;-&nbsp; &nbsp;Copyright © 2024 JillAI</p>
+            <div class="text-muted d-flex justify-content-between align-items-center">
+                <p class="mb-0"><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a> &nbsp;-&nbsp;<a href="{{ url_for('tos') }}">Terms Of Service</a> &nbsp;-&nbsp; Copyright © 2024 JillAI</p>
             </div>
         </div>
     </footer>
@@ -217,6 +217,7 @@
     <script src="static/js/bold-and-dark.js"></script>
     <script defer src="static/js/toast.js"></script>
     <script defer src="static/js/validation.js"></script>
+    <script defer src="static/js/reg_modalcontrol.js"></script>
 </body>
 
 </html>

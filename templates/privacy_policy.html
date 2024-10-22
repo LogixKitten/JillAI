@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>JillAI Privacy Policy</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic&amp;display=swap">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md sticky-top bg-dark py-3 navbar-dark" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <span class="bs-icon-md shadow-none d-flex justify-content-center align-items-center me-2 bs-icon">
+                    <img src="static/img/Logo.png" width="100" height="104">
+                </span>
+                <span class="fw-bolder" style="font-family: 'Amatic SC', serif; font-size: 50px;">JillAI</span>
+            </a>
+            <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
+                <span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('team') }}">Team</a></li>
+                </ul>
+                {% if current_user.is_authenticated %}
+                    <a class="btn btn-primary shadow" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <a class="btn btn-primary shadow" href="{{ url_for('logout') }}">Logout</a>
+                    <a class="btn btn-primary shadow" href="{{ url_for('account_settings') }}">Account Settings</a>
+                {% else %}
+                    <a class="btn btn-primary shadow" href="{{ url_for('login') }}">Login</a>
+                    <a class="btn btn-primary shadow" href="{{ url_for('register') }}">Sign up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h2 class="text-center" style="font-family: 'Amatic SC', serif; font-size: 50px;">Privacy Policy</h2>
+                    <p class="text-center text-muted">Last updated: October 22, 2024</p>
+                </div>
+            </div>
+            <div class="policy-box">
+                <h3>Privacy Notice for JillAI</h3>
+                <p>JillAI ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy outlines how we collect, use, store, and protect your personal data when you use our services, including through our website (https://www.jillai.tech), the JillAI platform, and any associated services.</p>
+                <p><strong>Disclaimer:</strong> JillAI is a student-led project created for educational purposes and is not a registered legal entity. This Privacy Policy is designed to outline how we handle your data for the purposes of this academic project.</p>
+
+                <h4>Table of Contents</h4>
+                <ul>
+                    <li><a href="#infocollect">1. Data We Collect</a></li>
+                    <li><a href="#infouse">2. How We Use Your Information</a></li>
+                    <li><a href="#datastorage">3. How We Store Your Data</a></li>
+                    <li><a href="#whoshare">4. Third-Party Access to Your Data</a></li>
+                    <li><a href="#gdpr">5. User Rights (GDPR Compliance)</a></li>
+                    <li><a href="#datasec">6. Data Security</a></li>
+                    <li><a href="#policychanges">7. Changes to this Privacy Policy</a></li>
+                    <li><a href="#contact">8. Contact Us</a></li>
+                </ul>
+
+                <h4 id="infocollect">1. Data We Collect</h4>
+                <p>We collect the following personal data to provide you with the best possible experience:</p>
+
+                <h5>User Profile Information:</h5>
+                <ul>
+                    <li><strong>Names (First and Last)</strong> — Purpose: Identity verification and personalization.</li>
+                    <li><strong>Date of Birth (DOB)</strong> — Purpose: Personalization and identity verification.</li>
+                    <li><strong>Gender</strong> — Purpose: Identity verification and to tailor AI assistant interactions.</li>
+                    <li><strong>Zip Code</strong> — Purpose: To provide localized weather data via the OpenWeather API.</li>
+                    <li><strong>Email Address</strong> — Purpose: Used for authentication and communication regarding your account.</li>
+                </ul>
+
+                <h5>Authentication and Security:</h5>
+                <ul>
+                    <li><strong>Username and Password</strong> — Purpose: Authentication and account security.</li>
+                    <li><strong>Security:</strong> Passwords are stored with 256-bit encryption.</li>
+                </ul>
+
+                <h5>OAuth Data (Google API Integration):</h5>
+                <ul>
+                    <li><strong>Google TokenID, RefreshID, and GoogleID</strong> — Purpose: To enable JillAI to access and manage your Google Calendar on your behalf, including creating, modifying, and deleting calendar events.</li>
+                </ul>
+
+                <h5>User Preferences:</h5>
+                <ul>
+                    <li><strong>Persona and UI Mode</strong> — Purpose: Personalize the user interface and AI persona selection.</li>
+                </ul>
+
+                <h5>Chat History:</h5>
+                <ul>
+                    <li><strong>Messages and Conversations</strong> — Purpose: Stored for your convenience to review past interactions.</li>
+                    <li><strong>Security:</strong> Chat history will be encrypted at rest.</li>
+                </ul>
+
+                <h5>Payment Information (Stripe Integration):</h5>
+                <ul>
+                    <li><strong>Billing Information</strong> — Purpose: Process payments for JillAI's premium services.</li>
+                    <li><strong>Security:</strong> Payment data is handled securely by Stripe and is not stored on our servers.</li>
+                </ul>
+
+                <h4 id="infouse">2. How We Use Your Information</h4>
+                <ul>
+                    <li>Provide and improve our services: Including managing your profile, delivering personalized AI responses, and accessing your Google Calendar on your behalf.</li>
+                    <li>Authentication and Security: Ensuring secure access to your account.</li>
+                    <li>Communication: Sending account-related notifications and updates.</li>
+                    <li>Weather Data: Using your Zip Code to provide localized weather information.</li>
+                    <li>Payment Processing: For subscription and billing through Stripe (if applicable).</li>
+                    <li>Improve User Experience: By saving chat history for review and providing continuity in AI conversations.</li>
+                </ul>
+
+                <h4 id="datastorage">3. How We Store Your Data</h4>
+                <p>Your data is stored securely using appropriate industry-standard encryption and security measures to protect it from unauthorized access, disclosure, or alteration.</p>
+                <ul>
+                    <li><strong>User Profile Data:</strong> Stored securely for account management.</li>
+                    <li><strong>Chat History:</strong> Stored in an encrypted format for your convenience.</li>
+                    <li><strong>Payment Information:</strong> Managed by Stripe, a third-party payment provider, which handles your payment data in compliance with industry standards.</li>
+                </ul>
+
+                <h4 id="whoshare">4. Third-Party Access to Your Data</h4>
+                <p>We do not share your personal data with third parties, except when strictly necessary for our service to function (e.g., Google API for Calendar management or Stripe for payment processing). Your chat data is stored locally on our servers and is not shared with any third parties, including OpenAI, which powers some of the AI functionality. All memory and storage remain under our control.</p>
+
+                <h4 id="gdpr">5. User Rights (GDPR Compliance)</h4>
+                <p>If you are a resident of the European Union (EU) or the European Economic Area (EEA), you have the following rights regarding your personal data:</p>
+                <ul>
+                    <li><strong>Right to Access:</strong> You can request access to the personal data we hold about you.</li>
+                    <li><strong>Right to Rectification:</strong> You can request corrections to any inaccurate data.</li>
+                    <li><strong>Right to Erasure (Right to be Forgotten):</strong> You can request that we delete your data, subject to any legal obligations we may have.</li>
+                    <li><strong>Right to Data Portability:</strong> You can request a copy of your personal data in a structured, commonly used, and machine-readable format.</li>
+                    <li><strong>Right to Restrict Processing:</strong> You can request that we limit the processing of your personal data in certain circumstances.</li>
+                    <li><strong>Right to Object:</strong> You can object to the processing of your data based on our legitimate interests.</li>
+                </ul>
+                <p>To exercise these rights, please contact us at privacy@jillai.tech.</p>
+
+                <h4 id="datasec">6. Data Security</h4>
+                <p>We implement appropriate security measures, including encryption, to ensure your personal data is protected. This includes:</p>
+                <ul>
+                    <li><strong>Encrypted Storage:</strong> Chat history and sensitive user information are encrypted at rest.</li>
+                    <li><strong>OAuth Compliance:</strong> We adhere to OAuth standards for secure Google authentication.</li>
+                    <li><strong>Payment Security:</strong> Stripe handles all payment data in compliance with PCI-DSS regulations.</li>
+                </ul>
+
+                <h4 id="policychanges">7. Changes to this Privacy Policy</h4>
+                <p>We may update this Privacy Policy from time to time in order to reflect changes to our practices or for other operational, legal, or regulatory reasons. The updated Privacy Policy will be posted on our website with the "Last Updated" date at the top.</p>
+
+                <h4 id="contact">8. Contact Us</h4>
+                <p>If you have any questions or concerns about this Privacy Policy, please contact us at privacy@jillai.tech.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-dark py-4">
+        <div class="container">
+            <hr>
+            <div class="text-muted d-flex justify-content-between align-items-center">
+                <p class="mb-0"><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a> &nbsp;-&nbsp;<a href="{{ url_for('tos') }}">Terms Of Service</a> &nbsp;-&nbsp; Copyright © 2024 JillAI</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src="static/js/smart-forms.min.js"></script>
+</body>
+
+</html>
