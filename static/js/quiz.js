@@ -3,13 +3,28 @@ document.addEventListener("DOMContentLoaded", function() {
     const forms = document.querySelectorAll("form[id^='form-']");
     
     forms.forEach((form, index) => {
-      const nextButton = document.querySelector(`.next-button-${index + 1}`);
-      form.addEventListener('change', function() {
-        if (form.querySelector('input[type="radio"]:checked')) {
-          nextButton.disabled = false; // Enable next button
-        }
-      });
+        const nextButton = document.querySelector(`.next-button-${index + 1}`);
+        
+        // Enable the "Next" button when a radio button is selected
+        form.addEventListener('change', function() {
+            if (form.querySelector('input[type="radio"]:checked')) {
+                nextButton.disabled = false;  // Enable the "Next" button
+            }
+        });
+    
+        // Handle modal transition when "Next" button is clicked
+        nextButton.addEventListener('click', function() {
+            // Hide the current modal
+            $(`#modal-question${index + 1}`).modal('hide');
+            
+            // Show the next modal (if it exists)
+            const nextModal = document.querySelector(`#modal-question${index + 2}`);
+            if (nextModal) {
+                $(`#modal-question${index + 2}`).modal('show');
+            }
+        });
     });
+    
   
     // Enable "Show Results" button in the last modal
     const showResultsButton = document.querySelector('.show-results-button');
@@ -281,6 +296,6 @@ document.addEventListener("DOMContentLoaded", function() {
           }
         });
       });
-        
+
   });
   

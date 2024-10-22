@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>JillAI: Your Personal AI Assistant</title>
-    <meta name="description" content="Meet JillAI: Your Personal AI Assistant
-JillAI is here to simplify your life and help you achieve your best self. With a sleek and modern design, JillAI adapts to your unique needs, offering tailored support through customizable personas. Whether you’re looking to stay organized, find quick information, or keep up with the weather, JillAI is your go-to solution. Embrace the future of assistance—everyone could use a personal assistant!">
+    <meta name="description" content="Meet JillAI: Your Personal AI Assistant JillAI is here to simplify your life and help you achieve your best self. With a sleek and modern design, JillAI adapts to your unique needs, offering tailored support through customizable personas. Whether you’re looking to stay organized, find quick information, or keep up with the weather, JillAI is your go-to solution. Embrace the future of assistance—everyone could use a personal assistant!">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <link rel="stylesheet" href="static/css/bootstrap.min.css">
     <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
@@ -109,7 +109,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                         <div></div>
                     </div>
 
-                    <button class="next-button-1" type="button" data-bs-target="#modal-question2" data-bs-toggle="modal" disabled>
+                    <button class="next-button-1" type="button" id="next-question1" disabled>
                         Next
                     </button>
 
@@ -157,7 +157,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                     <div class="col">
                         <div></div>
 
-                    <button class="next-button-2" type="button" data-bs-target="#modal-question3" data-bs-toggle="modal" disabled>
+                    <button class="next-button-2" type="button" id="next-question2" disabled>
                         Next
                     </button>
 
@@ -202,7 +202,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                     <div class="col">
                         <div></div>
 
-                    <button class="next-button-3" type="button" data-bs-target="#modal-question4" data-bs-toggle="modal" disabled>
+                    <button class="next-button-3" type="button" id="next-question3" disabled>
                         Next
                     </button>
 
@@ -247,7 +247,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                     <div class="col">
                         <div></div>
 
-                    <button class="next-button-4" type="button" data-bs-target="#modal-question5" data-bs-toggle="modal" disabled>
+                    <button class="next-button-4" type="button" id="next-question4" disabled>
                         Next
                     </button>
 
@@ -292,7 +292,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                     <div class="col">
                         <div></div>
 
-                    <button class="next-button-5" type="button" data-bs-target="#modal-question6" data-bs-toggle="modal" disabled>
+                    <button class="next-button-5" type="button" id="next-question5" disabled>
                         Next
                     </button>
 
@@ -340,7 +340,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                     <div class="col">
                         <div></div>
 
-                    <button class="next-button-6" type="button" data-bs-target="#modal-question7" data-bs-toggle="modal" disabled>
+                    <button class="next-button-6" type="button" id="next-question6" disabled>
                         Next
                     </button>
 
@@ -385,7 +385,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                     <div class="col">
                         <div></div>
 
-                    <button class="next-button-7" type="button" data-bs-target="#modal-question8" data-bs-toggle="modal" disabled>
+                    <button class="next-button-7" type="button" id="next-question7" disabled>
                         Next
                     </button>
 
@@ -433,7 +433,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                     <div class="col">
                         <div></div>
 
-                    <button class="next-button-8" type="button" data-bs-target="#modal-question9" data-bs-toggle="modal" disabled>
+                    <button class="next-button-8" type="button" id="next-question8" disabled>
                         Next
                     </button>
 
@@ -478,7 +478,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                     <div class="col">
                         <div></div>
 
-                    <button class="next-button-9" type="button" data-bs-target="#modal-question10" data-bs-toggle="modal" disabled>
+                    <button class="next-button-9" type="button" id="next-question9" disabled>
                         Next
                     </button>
 
@@ -526,7 +526,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                     <div class="col">
                         <div></div>
 
-                    <button class="show-results-button" type="button" data-bs-target="#modal-quizResults" data-bs-toggle="modal" disabled>
+                    <button class="show-results-button" type="button" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#modal-quizResults" disabled>
                         Show Results
                     </button>
 
@@ -595,7 +595,7 @@ JillAI is here to simplify your life and help you achieve your best self. With a
             </div>
         </div>
     </footer>
-    <script src="static/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <script src="static/js/bold-and-dark.js"></script>
     <script src="static/js/dashboard.js"></script>
     <script src="static/js/quiz.js"></script>
