@@ -3,8 +3,16 @@ document.addEventListener("DOMContentLoaded", function() {
     const forms = document.querySelectorAll("form[id^='form-']");
     
     forms.forEach((form, index) => {
+        if (index + 1 === 10) return;  // Skip Modal 10 logic
+        
         const nextButton = document.querySelector(`.next-button-${index + 1}`);
         
+        // Add a check to see if nextButton exists
+        if (!nextButton) {
+            console.error(`No next button found for .next-button-${index + 1}`);
+            return;  // Stop this iteration if no button is found
+        }
+    
         // Enable the "Next" button when a radio button is selected
         form.addEventListener('change', function() {
             if (form.querySelector('input[type="radio"]:checked')) {
@@ -24,8 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
-    
-  
+        
     // Enable "Show Results" button in the last modal
     const showResultsButton = document.querySelector('.show-results-button');
     const lastForm = document.getElementById('form-10');
