@@ -287,7 +287,7 @@ def get_preferences():
 def load_user(user_id):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM Users WHERE id = %s", (user_id,))
+    cursor.execute("SELECT * FROM Users WHERE user_id = %s", (user_id,))
     user_data = cursor.fetchone()
     
     cursor.close()
