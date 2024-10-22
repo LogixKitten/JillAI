@@ -339,7 +339,7 @@ def account_settings():
 @app.route('/google_auth')
 @login_required
 def google_auth():
-    redirect_uri = url_for('auth_callback', _external=True)
+    redirect_uri = url_for('callback', _external=True)
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/callback')
