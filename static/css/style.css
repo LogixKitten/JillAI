@@ -28,3 +28,9 @@
   border: 2px solid #ccc;
   margin-right: 10px;
 }
+
+/* Ensure radio buttons are displayed in a vertical stack */
+.modal-body label {
+  display: block;
+  margin-bottom: 10px;  /* Optional: Adjust spacing between each radio button */
+}

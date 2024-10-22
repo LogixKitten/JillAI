@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 nextButton.disabled = false;  // Enable the "Next" button
             }
         });
-            
+
     });
         
     // Enable "Show Results" button in the last modal
@@ -228,9 +228,10 @@ document.addEventListener("DOMContentLoaded", function() {
             // Iterate over the recommended personas and generate the options
             recommendedPersonas.forEach(persona => {
               // Set the image path based on UImode
-              const imagePath = (uiMode === 'simple') 
-                ? '/static/img/personas/generic.png'  // Use generic image for "simple" mode
-                : '/static/img/personas/${persona}.png';  // Use persona-specific image for "fancy" mode
+              const imagePath = (uiMode === 'simple')
+                ? '/static/img/personas/generic.png'
+                : `/static/img/personas/${persona}.png`; 
+
       
               // Generate the HTML for the persona option
               const personaOption = `
@@ -254,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log('Error fetching preferences:', error);
           }
         });
-      }      
+      }
   
     // Show results button handler
     document.querySelector('.show-results-button').addEventListener('click', function() {
@@ -286,6 +287,8 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log('Persona updated successfully:', selectedPersona);
             // Close the modal after confirmation
             $('#modal-quizResults').modal('hide');
+            // Remove the lingering backdrop manually
+            $('.modal-backdrop').remove();
           },
           error: function(error) {
             console.log('Error updating persona:', error);
