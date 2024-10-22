@@ -182,21 +182,19 @@ JillAI is here to simplify your life and help you achieve your best self. With a
                                     {% endwith %}
                                     </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email address</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
+                                <div class="mb-3">                                    
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" required>
                                     <div class="invalid-feedback">This email is already taken.</div>
                                     <div class="valid-feedback">Email is available!</div>
                                 </div>
                                 
-                                <div class="mb-3">
-                                    <label for="userName" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="userName" name="userName" minlength="4" required>
+                                <div class="mb-3">                                    
+                                    <input type="text" class="form-control" id="userName" name="userName" minlength="4" placeholder="User Name" required>
                                     <div class="invalid-feedback">This username is already taken.</div>
                                     <div class="valid-feedback">Username is available!</div>
                                 </div>
                                 <div class="mb-3"><input class="form-control" type="password" name="password" placeholder="Password" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&amp;])[A-Za-z\d@$!%*?&amp;]{8,}"></div>
-                                <div class="mb-3"><button class="btn btn-primary shadow d-block w-100" type="submit">Sign up</button></div>
+                                <div class="mb-3"><button class="btn btn-primary shadow d-block w-100" type="button" data-bs-target="#modal-1" data-bs-toggle="modal">Sign up</button></div>
                                 <p class="text-muted">Already have an account?&nbsp;<a href="{{ url_for('login') }}">Log in</a></p>
                             </form>
                         </div>

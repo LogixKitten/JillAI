@@ -1,60 +1,64 @@
 document.addEventListener('DOMContentLoaded', function() {
   
-    // Validate email on blur
-    const emailInput = document.getElementById('email');
-    emailInput.addEventListener('blur', function() {
-      const email = emailInput.value;
-  
-      // Send AJAX request to validate the email
-      fetch('/validate_email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-          'email': email
-        })
+// Validate email on blur
+const emailInput = document.getElementById('email');
+emailInput.addEventListener('blur', function() {
+  const email = emailInput.value.trim(); // Trim to remove extra spaces
+
+  if (email) { // Only send request if the email is not empty
+    // Send AJAX request to validate the email
+    fetch('/validate_email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        'email': email
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.isValid) {
-          emailInput.classList.remove('is-invalid');
-          emailInput.classList.add('is-valid');
-        } else {
-          emailInput.classList.remove('is-valid');
-          emailInput.classList.add('is-invalid');
-        }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.isValid) {
+        emailInput.classList.remove('is-invalid');
+        emailInput.classList.add('is-valid');
+      } else {
+        emailInput.classList.remove('is-valid');
+        emailInput.classList.add('is-invalid');
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  }
+});
+
+// Validate username on blur
+const userNameInput = document.getElementById('userName');
+userNameInput.addEventListener('blur', function() {
+  const userName = userNameInput.value.trim(); // Trim to remove extra spaces
+
+  if (userName) { // Only send request if the username is not empty
+    // Send AJAX request to validate the username
+    fetch('/validate_username', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        'userName': userName
       })
-      .catch(error => console.error('Error:', error));
-    });
-  
-    // Validate username on blur
-    const userNameInput = document.getElementById('userName');
-    userNameInput.addEventListener('blur', function() {
-      const userName = userNameInput.value;
-  
-      // Send AJAX request to validate the username
-      fetch('/validate_username', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-          'userName': userName
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.isValid) {
-          userNameInput.classList.remove('is-invalid');
-          userNameInput.classList.add('is-valid');
-        } else {
-          userNameInput.classList.remove('is-valid');
-          userNameInput.classList.add('is-invalid');
-        }
-      })
-      .catch(error => console.error('Error:', error));
-    });
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.isValid) {
+        userNameInput.classList.remove('is-invalid');
+        userNameInput.classList.add('is-valid');
+      } else {
+        userNameInput.classList.remove('is-valid');
+        userNameInput.classList.add('is-invalid');
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  }
+});
   
     // Submit form data and create account
     document.getElementById('submitFormButton').addEventListener('click', function() {
