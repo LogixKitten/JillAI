@@ -314,6 +314,12 @@ def account_settings():
     #return render_template('account_settings.html', user=current_user)
     return "Account Settings Page Coming Soon!"
 
+@app.route('/google_auth')
+@login_required
+def google_auth():
+    #return render_template('google_auth.html', user=current_user)
+    return "Google Authentication Coming Soon!"
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -338,8 +344,11 @@ def dashboard():
 
 @app.route('/privacy_policy')
 def privacy_policy():
-    #return render_template('privacy_policy.html')
-    return "Privacy Policy Page Coming Soon!"
+    return render_template('privacy_policy.html')
+
+@app.route('/tos')
+def tos():
+    return render_template('tos.html')   
 
 @app.route('/chat_room')
 @login_required
