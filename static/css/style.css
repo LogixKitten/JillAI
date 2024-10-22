@@ -19,3 +19,12 @@
   position: relative; /* Change to relative for in-flow positioning */
   margin-top: 10px; /* Adjust this value to move it closer */
 }
+
+.persona-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  margin-right: 10px;
+}
