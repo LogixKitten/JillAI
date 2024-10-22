@@ -27,9 +27,9 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('team') }}">Team</a></li>
                 </ul>
                 {% if current_user.is_authenticated %}
-                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('dashboard') }}" style="margin: 20px;">Dashboard</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('logout') }}" style="margin: 20px;">Logout</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('account_settings') }}">Account Settings</a>
+                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('dashboard') }}" style="margin: 20px;">Dashboard</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('logout') }}" style="margin: 20px;">Logout</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('account_settings') }}" style="margin: 20px;">Account Settings</a>
                 {% else %}
-                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('login') }}" style="margin: 20px;">Login</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('register') }}">Sign up</a>
+                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('login') }}" style="margin: 20px;">Login</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('register') }}" style="margin: 20px;">Sign up</a>
                 {% endif %}
             </div>
         </div>
