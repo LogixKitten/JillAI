@@ -6,6 +6,8 @@ from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 import os
 from flask_socketio import SocketIO, join_room, leave_room, send
+from datetime import datetime, timedelta
+from authlib.integrations.flask_client import OAuth
 
 # Load environment variables from .env file
 load_dotenv()
@@ -18,6 +20,23 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY')
 # Set the SameSite attribute for session cookies
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
+
+# Set up OAuth
+oauth = OAuth(app)
+
+google = oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    access_token_params=None,
+    redirect_uri='https://www.jillai.tech/callback',  # Update with your redirect URL
+    scope=['openid', 'email', 'profile', 'https://www.googleapis.com/auth/calendar'],
+    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',  # To fetch user info
+    client_kwargs={'scope': 'openid email profile https://www.googleapis.com/auth/calendar'}
+)
 
 # Initialize Flask-SocketIO
 socketio = SocketIO(app, async_mode='eventlet')
@@ -138,7 +157,10 @@ def register():
             
             # Insert default values into Preferences and Token
             cursor.execute("INSERT INTO Preferences (user_id) VALUES (%s)", (user_id,))
-            cursor.execute("INSERT INTO Token (user_id) VALUES (%s)", (user_id,))
+            cursor.execute("""
+                INSERT INTO Token (user_id, ExpirationTime) 
+                VALUES (%s, '1970-01-01 00:00:00')
+            """, (user_id,))
             
             # Commit the transaction
             connection.commit()
@@ -317,8 +339,37 @@ def account_settings():
 @app.route('/google_auth')
 @login_required
 def google_auth():
-    #return render_template('google_auth.html', user=current_user)
-    return "Google Authentication Coming Soon!"
+    redirect_uri = url_for('auth_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/callback')
+@login_required
+def callback():
+    token = google.authorize_access_token()
+    
+    # Store access token, refresh token, and expiry time in your database
+    access_token = token['access_token']
+    refresh_token = token.get('refresh_token')
+    expires_in = token['expires_in']  # Lifetime of token in seconds
+    expiration_time = datetime.now() + timedelta(seconds=expires_in)  # Calculate expiration
+    
+    # Update token data in your database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    query = """
+    UPDATE Token
+    SET TokenID = %s, RefreshID = %s, GoogleID = %s, ExpirationTime = %s
+    WHERE user_id = %s
+    """
+    cursor.execute(query, (access_token, refresh_token, token['id_token'], expiration_time, current_user.user_id))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    # Redirect to dashboard
+    return redirect(url_for('dashboard'))
 
 @app.route('/dashboard')
 @login_required
