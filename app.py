@@ -310,12 +310,6 @@ def account_settings():
     #return render_template('account_settings.html', user=current_user)
     return "Account Settings Page Coming Soon!"
 
-@app.route('/personality_quiz')
-@login_required
-def personality_quiz():
-    #return render_template('personality_quiz.html', user=current_user)
-    return "Personality Quiz Page Coming Soon!"
-
 @app.route('/dashboard')
 @login_required
 def dashboard():

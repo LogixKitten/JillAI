@@ -62,15 +62,15 @@ userNameInput.addEventListener('blur', function() {
   
     // Submit form data and create account
     document.getElementById('submitFormButton').addEventListener('click', function() {
-      // Collect form data
-      const email = document.getElementById('email').value;
-      const userName = document.getElementById('userName').value;
-      const password = document.getElementById('password').value;
-      const firstName = document.getElementById('firstName').value;
-      const lastName = document.getElementById('lastName').value;
-      const dateOfBirth = document.getElementById('dateOfBirth').value;
-      const gender = document.querySelector('input[name="gender"]:checked').value;
-      const zipCode = document.getElementById('zipCode').value;
+        // Collect form data
+        const email = document.querySelector('input[name="email"]').value;
+        const userName = document.querySelector('input[name="userName"]').value;
+        const password = document.querySelector('input[name="password"]').value;
+        const firstName = document.querySelector('input[name="firstName"]').value;
+        const lastName = document.querySelector('input[name="lastName"]').value;
+        const dateOfBirth = document.querySelector('input[name="dateOfBirth"]').value;
+        const gender = document.querySelector('input[name="gender"]:checked').value;
+        const zipCode = document.querySelector('input[name="zipCode"]').value;
   
       // Create data object to send to the Flask route
       const formData = {
