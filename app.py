@@ -325,22 +325,24 @@ def google_auth():
 def dashboard():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    
+
     # Query to fetch the TokenID for the current user
     query = "SELECT TokenID FROM Token WHERE user_id = %s"
     cursor.execute(query, (current_user.user_id,))
     token = cursor.fetchone()
-    
-    # If no token or TokenID is 0, Google Authentication is required
-    token_required = token['TokenID'] == 0 if token else True
+
+    # Debugging: Check what token is fetched (optional for troubleshooting)
+    print(f"Token fetched from DB: {token}")
+
+    # Since TokenID is set to 0 by default at registration, we only check if it's 0
+    token_required = (token['TokenID'] == 0)
     
     # Close the cursor and connection
     cursor.close()
     conn.close()
-    
+
     # Pass token_required to the template
     return render_template('dashboard.html', user=current_user, token_required=token_required)
-
 
 @app.route('/privacy_policy')
 def privacy_policy():
