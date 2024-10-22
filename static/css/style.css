@@ -34,3 +34,28 @@
   display: block;
   margin-bottom: 10px;  /* Optional: Adjust spacing between each radio button */
 }
+
+.btn-google {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #4285F4;
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 4px;
+  border: none;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.btn-google:hover {
+  background-color: #357AE8;
+  text-decoration: none;
+}
+
+.btn-google img {
+  vertical-align: middle;
+}
