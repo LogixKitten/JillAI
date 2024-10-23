@@ -33,6 +33,7 @@ google = oauth.register(
     client_kwargs={
         'scope': 'openid email profile https://www.googleapis.com/auth/calendar',
         'token_endpoint_auth_method': 'client_secret_post',
+        'access_type': 'offline',  # Ensure offline access to get the refresh token
     }
 )
 
@@ -360,8 +361,8 @@ def callback():
     print("Access Token: " + access_token)
     print("Refresh Token: " + refresh_token)
     print("GoogleID: "+ token['id_token'])
-    print("Expires In: " + expires_in)
-    print("Expiration Time: " + expiration_time)
+    print("Expires In: " + str(expires_in))
+    print("Expiration Time: " + str(expiration_time))
 
     # Update token data in your database
     conn = get_db_connection()
