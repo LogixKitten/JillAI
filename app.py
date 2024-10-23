@@ -33,11 +33,8 @@ google = oauth.register(
     redirect_uri='https://www.jillai.tech/callback',  # Update with your redirect URL
     scope=['openid', 'email', 'profile', 'https://www.googleapis.com/auth/calendar'],
     userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',  # Correct user info endpoint
-    server_metadata_url= 'https://accounts.google.com/.well-known/openid-configuration'
-    client_kwargs={
-        'scope': 'openid email profile https://www.googleapis.com/auth/calendar',
-        'token_endpoint_auth_method': 'client_secret_post'
-    }
+    server_metadata_url= 'https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile https://www.googleapis.com/auth/calendar'}
 )
 
 # Initialize Flask-SocketIO
