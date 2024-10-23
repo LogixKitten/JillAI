@@ -34,6 +34,7 @@ google = oauth.register(
         'scope': 'openid email profile https://www.googleapis.com/auth/calendar',
         'token_endpoint_auth_method': 'client_secret_post',
         'access_type': 'offline',  # Ensure offline access to get the refresh token
+        'prompt': 'consent',  # Force consent screen to appear every time
     }
 )
 
@@ -340,7 +341,7 @@ def account_settings():
 @login_required
 def google_auth():
     redirect_uri = url_for('callback', _external=True)
-    return google.authorize_redirect(redirect_uri)
+    return google.authorize_redirect(redirect_uri, access_type='offline')
 
 @app.route('/callback')
 @login_required
