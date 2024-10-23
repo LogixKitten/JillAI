@@ -347,11 +347,22 @@ def callback():
     token = google.authorize_access_token()
     
     # Store access token, refresh token, and expiry time in your database
-    access_token = token['access_token']
-    refresh_token = token.get('refresh_token')
-    expires_in = token['expires_in']  # Lifetime of token in seconds
-    expiration_time = datetime.now() + timedelta(seconds=expires_in)  # Calculate expiration
+    access_token = token.get('access_token', "0")  # Default to "0" if missing
+    refresh_token = token.get('refresh_token', "0")  # Default to "0" if missing
+    expires_in = token.get('expires_in', 0)  # Default to 0 seconds if missing
+
+    if expires_in != 0:
+        expiration_time = datetime.now() + timedelta(seconds=expires_in)  # Calculate expiration
+    else:
+        expiration_time = '1970-01-01 00:00:00'
     
+    # print debug
+    print("Access Token: " + access_token)
+    print("Refresh Token: " + refresh_token)
+    print("GoogleID: "+ token['id_token'])
+    print("Expires In: " + expires_in)
+    print("Expiration Time: " + expiration_time)
+
     # Update token data in your database
     conn = get_db_connection()
     cursor = conn.cursor()
