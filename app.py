@@ -8,7 +8,7 @@ import os
 from flask_socketio import SocketIO, join_room, leave_room, send
 from datetime import datetime, timedelta
 from authlib.integrations.flask_client import OAuth
-from authlib.jose import JsonWebToken
+from authlib.jose import jwt
 
 # Load environment variables from .env file
 load_dotenv()
@@ -348,7 +348,12 @@ def account_settings():
 @login_required
 def google_auth():
     redirect_uri = url_for('callback', _external=True)
-    return google.authorize_redirect(redirect_uri, access_type='offline')
+
+    # Generate a nonce for the authentication request
+    nonce = os.urandom(16).hex()
+    session['nonce'] = nonce  # Store nonce in session
+
+    return google.authorize_redirect(redirect_uri, access_type='offline', nonce=nonce)
 
 @app.route('/callback')
 @login_required
@@ -375,9 +380,15 @@ def callback():
     result = cursor.fetchone()
     existing_profile_picture = result['ProfilePicture']
 
+    # Retrieve nonce from session
+    nonce = session.pop('nonce', None)
+
+    if not nonce:
+        return "Error: Missing nonce"
+
     # Extract profile picture from id_token (Google OpenID Connect)
     id_token = token.get('id_token')
-    claims = google.parse_id_token(id_token)
+    claims = google.parse_id_token(id_token, nonce=nonce) # pass nonce for claim
     profile_picture = claims.get('picture', existing_profile_picture)  # Use Google picture or fallback to the existing one
 
     # Update the profile picture URL in the Users table
