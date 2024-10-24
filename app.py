@@ -386,10 +386,21 @@ def callback():
     if not nonce:
         return "Error: Missing nonce"
 
-    # Extract profile picture from id_token (Google OpenID Connect)
-    id_token = token.get('id_token')
-    claims = google.parse_id_token(id_token, nonce=nonce) # pass nonce for claim
-    profile_picture = claims.get('picture', existing_profile_picture)  # Use Google picture or fallback to the existing one
+    try:
+        # Decode the id_token and retrieve the profile picture
+        id_token = token.get('id_token')
+        print("ID Token:", id_token)  # Debugging
+
+        claims = google.parse_id_token(id_token, nonce=nonce)
+        print("Claims:", claims)  # Debugging
+
+        # Try to get the profile picture from claims, otherwise use the existing profile picture
+        profile_picture = claims.get('picture', existing_profile_picture)
+    except Exception as e:
+        # Handle any errors that might occur (e.g., claims are None or parsing fails)
+        print(f"Error while parsing claims: {e}")
+        # Use the existing profile picture in case of any failure
+        profile_picture = existing_profile_picture
 
     # Update the profile picture URL in the Users table
     query = """
