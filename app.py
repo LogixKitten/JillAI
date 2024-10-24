@@ -8,6 +8,7 @@ import os
 from flask_socketio import SocketIO, join_room, leave_room, send
 from datetime import datetime, timedelta
 from authlib.integrations.flask_client import OAuth
+from authlib.jose import JsonWebToken
 
 # Load environment variables from .env file
 load_dotenv()
@@ -45,13 +46,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 class User(UserMixin):
-    def __init__(self, user_id, FirstName, LastName, Username, email, Gender):
+    def __init__(self, user_id, FirstName, LastName, Username, email, Gender, Avatar):
         self.user_id = user_id  # This is the 'user_id' from the Users table
         self.FirstName = FirstName
         self.LastName = LastName
         self.Username = Username
         self.email = email
         self.Gender = Gender
+        self.Avatar = Avatar
 
     def get_id(self):
         """Flask-Login requires this method to return the user's ID."""
@@ -71,11 +73,11 @@ def get_db_connection():
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', user=current_user)
 
 @app.route('/team')
 def team():
-    return render_template('team.html')
+    return render_template('team.html', user=current_user)
 
 @app.route('/validate_email', methods=['POST'])
 def validate_email():
@@ -138,6 +140,8 @@ def register():
             '4': "Other"
         }.get(genderValue, "Other")  # Default to "Other" if the value is out of range
         
+        avatar_url = f"https://api.dicebear.com/9.x/initials/svg?seed={firstName}%20{lastName}"
+
         try:
             connection = get_db_connection()
             cursor = connection.cursor()
@@ -147,10 +151,10 @@ def register():
 
             # Insert the new user into the Users table
             query = """
-            INSERT INTO Users (email, Username, Passwd, FirstName, LastName, DateOfBirth, Gender, ZipCode)
+            INSERT INTO Users (email, Username, Passwd, FirstName, LastName, DateOfBirth, Gender, ZipCode, ProfilePicture)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(query, (email, userName, hashed_password, firstName, lastName, dateOfBirth, gender, zipCode))
+            cursor.execute(query, (email, userName, hashed_password, firstName, lastName, dateOfBirth, gender, zipCode, avatar_url))
             
             # Get the last inserted user_id (auto-incremented ID)
             user_id = cursor.lastrowid
@@ -174,7 +178,8 @@ def register():
                 LastName=lastName,
                 Username=userName,
                 email=email,
-                Gender=gender
+                Gender=gender,
+                Avatar=avatar_url
             )
             
             login_user(user)  # Log the user in
@@ -206,14 +211,17 @@ def login():
 
         # Check if the user exists and the password is correct
         if user_data and bcrypt.check_password_hash(user_data['Passwd'], password):
-            # Create an instance of the User class with gender
+            
+            # Create an instance of the User class
             user = User(
                 user_id=user_data['user_id'],
                 FirstName=user_data['FirstName'],
                 LastName=user_data['LastName'],
                 Username=user_data['Username'],
                 email=user_data['email'],
-                Gender=user_data['Gender']  # Add gender to the user object
+                Gender=user_data['Gender'],
+                Avatar=user_data['Avatar']
+
             )
             
             # Log the user in using Flask-Login's login_user function
@@ -320,7 +328,7 @@ def load_user(user_id):
     connection.close()
     
     if user_data:
-        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], Gender=user_data['Gender'])
+        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], Gender=user_data['Gender'], Avatar=user_data['Avatar'])
     return None
 
 @app.route('/logout')
@@ -355,18 +363,32 @@ def callback():
     if expires_in != 0:
         expiration_time = datetime.now() + timedelta(seconds=expires_in)  # Calculate expiration
     else:
-        expiration_time = '1970-01-01 00:00:00'    
+        expiration_time = '1970-01-01 00:00:00'
 
-    # Update token data in your database
+    # Decode the id_token to extract profile information
+    id_token = token.get('id_token')
+    jwt = JsonWebToken(['RS256'])
+    claims = jwt.decode(id_token, None)  # Decode the id_token
+    profile_picture = claims.get('picture')  # Extract profile picture URL
+
     conn = get_db_connection()
     cursor = conn.cursor()
+
+    # Save the profile picture URL in the Users table
+    query = """
+        UPDATE Users
+        SET ProfilePicture = %s
+        WHERE user_id = %s
+    """
+    cursor.execute(query, (profile_picture, current_user.user_id))
     
+    # Save the access token, refresh token, and expiration time in the Token table
     query = """
     UPDATE Token
-    SET TokenID = %s, RefreshID = %s, GoogleID = %s, ExpirationTime = %s
+    SET TokenID = %s, RefreshID = %s, ExpirationTime = %s, 
     WHERE user_id = %s
     """
-    cursor.execute(query, (access_token, refresh_token, token['id_token'], expiration_time, current_user.user_id))
+    cursor.execute(query, (access_token, refresh_token, expiration_time, current_user.user_id))
     
     conn.commit()
     cursor.close()
@@ -384,7 +406,7 @@ def dashboard():
     # Query to fetch the TokenID for the current user
     query = "SELECT TokenID FROM Token WHERE user_id = %s"
     cursor.execute(query, (current_user.user_id,))
-    token = cursor.fetchone()    
+    token = cursor.fetchone()
 
     # Since TokenID is set to 0 by default at registration, we only check if it's 0
     token_required = (token['TokenID'] == "0")
@@ -398,11 +420,11 @@ def dashboard():
 
 @app.route('/privacy_policy')
 def privacy_policy():
-    return render_template('privacy_policy.html')
+    return render_template('privacy_policy.html', user=current_user)
 
 @app.route('/tos')
 def tos():
-    return render_template('tos.html')   
+    return render_template('tos.html', user=current_user)   
 
 @app.route('/chat_room')
 @login_required

@@ -30,9 +30,21 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('team') }}">Team</a></li>
                 </ul>
                 {% if current_user.is_authenticated %}
-                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('dashboard') }}" style="margin: 20px;">Dashboard</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('logout') }}" style="margin: 20px;">Logout</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('account_settings') }}" style="margin: 20px;">Account Settings</a>
+                    <div>
+                        <div class="dropdown" data-bs-theme="dark">
+                            <button class="btn dropdown-toggle p-0" aria-expanded="false" data-bs-toggle="dropdown" type="button" style="width: 66px; height: 66px;">
+                                <img class="rounded-circle img-fluid" src="{{ current_user.Avatar }}" width="64" height="64">
+                            </button>
+                            <div class="dropdown-menu" style="background: rgb(37,37,44); border-color: var(--bs-body-color);">
+                                <a class="dropdown-item" href="{{ url_for('dashboard') }}" style="font-family: Inter, sans-serif; font-size: 18px;">Dashboard</a>
+                                <a class="dropdown-item" href="{{ url_for('account_settings') }}" style="font-family: Inter, sans-serif; font-size: 18px;">Account Settings</a>
+                                <a class="dropdown-item" href="{{ url_for('logout') }}" style="font-family: Inter, sans-serif; font-size: 18px;">Logout</a>
+                            </div>
+                        </div>
+                    </div>
                 {% else %}
-                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('login') }}" style="margin: 20px;">Login</a><a class="btn btn-primary shadow" role="button" href="{{ url_for('register') }}" style="margin: 20px;">Sign up</a>
+                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('login') }}" style="margin: 20px;">Login</a>
+                    <a class="btn btn-primary shadow" role="button" href="{{ url_for('register') }}" style="margin: 20px;">Sign up</a>
                 {% endif %}
             </div>
         </div>
