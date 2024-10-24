@@ -354,42 +354,49 @@ def google_auth():
 @login_required
 def callback():
     token = google.authorize_access_token()
-    
+
     # Store access token, refresh token, and expiry time in your database
-    access_token = token.get('access_token', "0")  # Default to "0" if missing
-    refresh_token = token.get('refresh_token', "0")  # Default to "0" if missing
+    access_token = token.get('access_token', '0')  # Default to "0" if missing
+    refresh_token = token.get('refresh_token', '0')  # Default to "0" if missing
     expires_in = token.get('expires_in', 0)  # Default to 0 seconds if missing
 
+    # Calculate the expiration time
     if expires_in != 0:
-        expiration_time = datetime.now() + timedelta(seconds=expires_in)  # Calculate expiration
+        expiration_time = datetime.now() + timedelta(seconds=expires_in)
     else:
         expiration_time = '1970-01-01 00:00:00'
 
-    # Decode the id_token to extract profile information
-    id_token = token.get('id_token')
-    jwt = JsonWebToken(['RS256'])
-    claims = jwt.decode(id_token, None)  # Decode the id_token
-    profile_picture = claims.get('picture')  # Extract profile picture URL
-
+    # Open a database connection
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
 
-    # Save the profile picture URL in the Users table
+    # Retrieve the existing ProfilePicture URL from the Users table
+    cursor.execute("SELECT ProfilePicture FROM Users WHERE user_id = %s", (current_user.user_id,))
+    result = cursor.fetchone()
+    existing_profile_picture = result['ProfilePicture']
+
+    # Extract profile picture from id_token (Google OpenID Connect)
+    id_token = token.get('id_token')
+    claims = google.parse_id_token(id_token)
+    profile_picture = claims.get('picture', existing_profile_picture)  # Use Google picture or fallback to the existing one
+
+    # Update the profile picture URL in the Users table
     query = """
-        UPDATE Users
-        SET ProfilePicture = %s
-        WHERE user_id = %s
+    UPDATE Users
+    SET ProfilePicture = %s
+    WHERE user_id = %s
     """
     cursor.execute(query, (profile_picture, current_user.user_id))
-    
+
     # Save the access token, refresh token, and expiration time in the Token table
     query = """
     UPDATE Token
-    SET TokenID = %s, RefreshID = %s, ExpirationTime = %s, 
+    SET TokenID = %s, RefreshID = %s, ExpirationTime = %s
     WHERE user_id = %s
     """
     cursor.execute(query, (access_token, refresh_token, expiration_time, current_user.user_id))
-    
+
+    # Commit the changes and close the connection
     conn.commit()
     cursor.close()
     conn.close()
