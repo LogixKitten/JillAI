@@ -41,7 +41,6 @@ google = oauth.register(
     }
 )
 
-
 # Initialize Flask-SocketIO
 socketio = SocketIO(app, async_mode='eventlet')
 
@@ -49,7 +48,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 class User(UserMixin):
-    def __init__(self, user_id, FirstName, LastName, Username, email, Gender, Avatar):
+    def __init__(self, user_id, FirstName, LastName, Username, email, Gender, Avatar, UIMode, CurrentPersona):
         self.user_id = user_id  # This is the 'user_id' from the Users table
         self.FirstName = FirstName
         self.LastName = LastName
@@ -57,6 +56,8 @@ class User(UserMixin):
         self.email = email
         self.Gender = Gender
         self.Avatar = Avatar
+        self.UIMode = UIMode
+        self.CurrentPersona = CurrentPersona
 
     def get_id(self):
         """Flask-Login requires this method to return the user's ID."""
@@ -182,7 +183,9 @@ def register():
                 Username=userName,
                 email=email,
                 Gender=gender,
-                Avatar=avatar_url
+                Avatar=avatar_url,
+                UIMode='simple',
+                CurrentPersona='jill'
             )
             
             login_user(user)  # Log the user in
@@ -209,6 +212,10 @@ def login():
         cursor.execute('SELECT * FROM Users WHERE Username = %s', (username,))
         user_data = cursor.fetchone()
 
+        # Fetch user preferences from Preferences table
+        cursor.execute('SELECT * FROM Preferences WHERE user_id = %s', (user_data['user_id'],))
+        user_preferences = cursor.fetchone()
+
         cursor.close()
         conn.close()
 
@@ -223,8 +230,9 @@ def login():
                 Username=user_data['Username'],
                 email=user_data['email'],
                 Gender=user_data['Gender'],
-                Avatar=user_data['ProfilePicture']
-
+                Avatar=user_data['ProfilePicture'],
+                UIMode=user_preferences['UImode'],
+                CurrentPersona=user_preferences['CurrentPersona']
             )
             
             # Log the user in using Flask-Login's login_user function
@@ -246,9 +254,7 @@ def update_preferences():
     try:
         # Extract the data from the request body
         data = request.get_json()
-        current_persona = data.get('CurrentPersona')
-        ui_mode = data.get('UImode')
-
+        
         # Get the current user's ID from Flask-Login
         user_id = current_user.user_id
 
@@ -256,35 +262,54 @@ def update_preferences():
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        # Update only the fields that are provided in the request
-        if current_persona and ui_mode:
-            query = """
-            UPDATE Preferences
-            SET CurrentPersona = %s, UImode = %s
-            WHERE user_id = %s
-            """
-            cursor.execute(query, (current_persona, ui_mode, user_id))
-        elif current_persona:
-            query = """
-            UPDATE Preferences
-            SET CurrentPersona = %s
-            WHERE user_id = %s
-            """
-            cursor.execute(query, (current_persona, user_id))
-        elif ui_mode:
-            query = """
-            UPDATE Preferences
-            SET UImode = %s
-            WHERE user_id = %s
-            """
-            cursor.execute(query, (ui_mode, user_id))
+        # Update FirstName, LastName, Email, and ZipCode if provided
+        if 'FirstName' in data:
+            cursor.execute("UPDATE Users SET FirstName = %s WHERE user_id = %s", (data['FirstName'], user_id))
+            current_user.FirstName = data['FirstName']
+        if 'LastName' in data:
+            cursor.execute("UPDATE Users SET LastName = %s WHERE user_id = %s", (data['LastName'], user_id))
+            current_user.LastName = data['LastName']
+        if 'email' in data:
+            cursor.execute("UPDATE Users SET email = %s WHERE user_id = %s", (data['email'], user_id))
+            current_user.email = data['email']
+        if 'ZipCode' in data:
+            cursor.execute("UPDATE Users SET ZipCode = %s WHERE user_id = %s", (data['ZipCode'], user_id))
+            current_user.ZipCode = data['ZipCode']
+        if 'gender' in data:
+            cursor.execute("UPDATE Users SET Gender = %s WHERE user_id = %s", (data['gender'], user_id))
+            current_user.Gender = data['gender']
+
+        # Update password if currentPassword and newPassword are provided
+        if 'currentPassword' in data and 'newPassword' in data:
+            # Fetch the current password from the database
+            cursor.execute("SELECT Passwd FROM Users WHERE user_id = %s", (user_id,))
+            current_hashed_password = cursor.fetchone()[0]
+
+            # Verify the current password
+            if bcrypt.check_password_hash(current_hashed_password, data['currentPassword']):
+                # Hash the new password
+                new_hashed_password = bcrypt.generate_password_hash(data['newPassword']).decode('utf-8')
+                # Update the password in the database
+                cursor.execute("UPDATE Users SET Passwd = %s WHERE user_id = %s", (new_hashed_password, user_id))
+            else:
+                flash('Current password is incorrect.', 'error')
+                return redirect(url_for('account_settings'))
+
+        # Update UIMode and CurrentPersona if provided
+        if 'UImode' in data:
+            cursor.execute("UPDATE Preferences SET UImode = %s WHERE user_id = %s", (data['UImode'], user_id))
+            current_user.UIMode = data['UImode']
+        if 'CurrentPersona' in data:
+            cursor.execute("UPDATE Preferences SET CurrentPersona = %s WHERE user_id = %s", (data['CurrentPersona'], user_id))
+            current_user.CurrentPersona = data['CurrentPersona']
 
         # Commit the changes and close the connection
         connection.commit()
         cursor.close()
         connection.close()
 
-        return jsonify({'message': 'Preferences updated successfully.'}), 200
+        flash('Preferences updated successfully.', 'success')
+        return redirect(url_for('account_settings'))
 
     except Exception as e:
         print(f"Error updating preferences: {e}")
@@ -324,14 +349,20 @@ def get_preferences():
 def load_user(user_id):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
+
+    # Fetch the user by user_id
     cursor.execute("SELECT * FROM Users WHERE user_id = %s", (user_id,))
     user_data = cursor.fetchone()
+  
+    # Fetch user preferences from Preferences table
+    cursor.execute('SELECT * FROM Preferences WHERE user_id = %s', (user_id,))
+    user_preferences = cursor.fetchone()
     
     cursor.close()
     connection.close()
     
     if user_data:
-        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], Gender=user_data['Gender'], Avatar=user_data['ProfilePicture'])
+        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], Gender=user_data['Gender'], Avatar=user_data['ProfilePicture'], UIMode=user_preferences['UImode'], CurrentPersona=user_preferences['CurrentPersona'])
     return None
 
 @app.route('/logout')
@@ -344,19 +375,13 @@ def logout():
 @app.route('/account_settings')
 @login_required
 def account_settings():
-    #return render_template('account_settings.html', user=current_user)
-    return "Account Settings Page Coming Soon!"
+    return render_template('accountSettings.html', user=current_user)
 
 @app.route('/google_auth')
 @login_required
 def google_auth():
     redirect_uri = url_for('callback', _external=True)    
     return google.authorize_redirect(redirect_uri, access_type='offline')
-
-import jwt
-from jwt import DecodeError, ExpiredSignatureError
-from urllib.request import urlopen
-import json
 
 @app.route('/callback')
 @login_required
