@@ -361,86 +361,91 @@ import json
 @app.route('/callback')
 @login_required
 def callback():
-    try:
-        token = google.authorize_access_token()
+    # Authorize the access token from the Google OAuth2 response
+    token = google.authorize_access_token()
 
-        # Store access token, refresh token, and expiry time in your database
-        access_token = token.get('access_token', "0")  # Default to "0" if missing
-        refresh_token = token.get('refresh_token', "0")  # Default to "0" if missing
-        expires_in = token.get('expires_in', 0)  # Default to 0 seconds if missing
+    # Store the access token, refresh token, and expiry time in your database
+    access_token = token.get('access_token', "0")  # Default to "0" if missing
+    refresh_token = token.get('refresh_token', "0")  # Default to "0" if missing
+    expires_in = token.get('expires_in', 0)  # Default to 0 seconds if missing
 
-        if expires_in != 0:
-            expiration_time = datetime.now() + timedelta(seconds=expires_in)  # Calculate expiration
-        else:
-            expiration_time = '1970-01-01 00:00:00'
-			
-		# Open a database connection
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-
-		# Retrieve the existing ProfilePicture URL from the Users table
-        cursor.execute("SELECT ProfilePicture FROM Users WHERE user_id = %s", (current_user.user_id,))
-        result = cursor.fetchone()
-        existing_profile_picture = result['ProfilePicture']
+    if expires_in != 0:
+        expiration_time = datetime.now() + timedelta(seconds=expires_in)  # Calculate expiration
+    else:
+        expiration_time = '1970-01-01 00:00:00'
 		
-        conn.commit()
-        cursor.close()
-        conn.close()
+	# Open a database connection
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
 
-        # Get the id_token and decode it using PyJWT
-        id_token = token.get('id_token')
-        if id_token:
-            # Get Google's public keys to validate the JWT
-            google_cert_url = "https://www.googleapis.com/oauth2/v3/certs"
-            response = urlopen(google_cert_url)
-            certs = json.loads(response.read())
+	# Retrieve the existing ProfilePicture URL from the Users table
+    cursor.execute("SELECT ProfilePicture FROM Users WHERE user_id = %s", (current_user.user_id,))
+    result = cursor.fetchone()
+    existing_profile_picture = result['ProfilePicture']
+	
+    conn.commit()
+    cursor.close()
+    conn.close()
 
-            try:
-                # Decode the id_token with PyJWT, verifying it using Google's public keys
-                claims = jwt.decode(id_token, certs, algorithms=["RS256"], audience=os.getenv('GOOGLE_CLIENT_ID'))
-                print(f"Claims: {claims}")
+    # Extract id_token from the token
+    id_token = token.get('id_token')
 
-                profile_picture = claims.get('picture', existing_profile_picture)  # Use Google picture or fallback to the existing one
-            except ExpiredSignatureError:
-                print("The token has expired.")
-                profile_picture = existing_profile_picture
-            except DecodeError:
-                print("Error decoding the token.")
-                profile_picture = existing_profile_picture
-            except Exception as e:
-                print(f"Error while decoding token: {e}")
-                profile_picture = existing_profile_picture
-        else:
-            print("No id_token present in token")
-            profile_picture = existing_profile_picture
+    # Fetch Google's public keys
+    google_cert_url = "https://www.googleapis.com/oauth2/v3/certs"
+    response = urlopen(google_cert_url)
+    certs = json.loads(response.read())
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+    # Decode the JWT header to extract 'kid' (key id)
+    header = jwt.get_unverified_header(id_token)
+    kid = header['kid']
 
-        # Save the profile picture URL in the Users table
-        query = """
+    # Find the public key in the certs
+    public_key = None
+    for key in certs['keys']:
+        if key['kid'] == kid:
+            public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(key))
+            break
+
+    if public_key is None:
+        raise ValueError("Unable to find the appropriate key")
+
+    # Use the public key to validate the id_token
+    try:
+        # Decode the id_token and validate it using Google's public key
+        claims = jwt.decode(id_token, public_key, algorithms=['RS256'], audience=os.getenv('GOOGLE_CLIENT_ID'))
+
+        # Extract the profile picture from the claims if it exists
+        profile_picture = claims.get('picture', existing_profile_picture)
+
+    except jwt.PyJWTError as e:
+        print("Error while decoding token:", str(e))
+        profile_picture = existing_profile_picture  # Fallback to the existing one
+
+    # Update the profile picture in the database if necessary
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Save the profile picture URL in the Users table
+    query = """
         UPDATE Users
         SET ProfilePicture = %s
         WHERE user_id = %s
-        """
-        cursor.execute(query, (profile_picture, current_user.user_id))
+    """
+    cursor.execute(query, (profile_picture, current_user.user_id))
 
-        # Save the access token, refresh token, and expiration time in the Token table
-        query = """
+    # Save the access token, refresh token, and expiration time in the Token table
+    query = """
         UPDATE Token
         SET TokenID = %s, RefreshID = %s, ExpirationTime = %s
         WHERE user_id = %s
-        """
-        cursor.execute(query, (access_token, refresh_token, expiration_time, current_user.user_id))
+    """
+    cursor.execute(query, (access_token, refresh_token, expiration_time, current_user.user_id))
 
-        conn.commit()
-        cursor.close()
-        conn.close()
+    conn.commit()
+    cursor.close()
+    conn.close()
 
-    except Exception as e:
-        print(f"Error while parsing claims: {e}")
-
-    # Redirect to dashboard
+    # Redirect to the dashboard
     return redirect(url_for('dashboard'))
 
 
