@@ -223,7 +223,7 @@ def login():
                 Username=user_data['Username'],
                 email=user_data['email'],
                 Gender=user_data['Gender'],
-                Avatar=user_data['Avatar']
+                Avatar=user_data['ProfilePicture']
 
             )
             
