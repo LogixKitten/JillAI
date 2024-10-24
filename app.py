@@ -377,6 +377,41 @@ def logout():
 def account_settings():
     return render_template('accountSettings.html', user=current_user)
 
+@app.route('/delete_account', methods=['POST'])
+@login_required
+def delete_account():
+    try:        
+        # Save current user id to a temporary variable
+        temp_user_id = current_user.user_id
+
+        # Log the user out
+        logout_user()
+
+        # Clear Flask Session Data
+        session.clear()
+
+        # Establish a database connection
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Delete the user entry from the Users table (cascade delete will handle related tables)
+        cursor.execute("DELETE FROM Users WHERE user_id = %s", (temp_user_id,))
+        
+        # Commit the changes and close the connection
+        connection.commit()
+        cursor.close()
+        connection.close()        
+
+        # Flash success message
+        flash('Your account has been deleted successfully.', 'success')
+        return redirect(url_for('home'))
+
+    except Exception as e:
+        print(f"Error deleting account: {e}")
+        flash('Failed to delete account. Please try again later.', 'error')
+        return redirect(url_for('account_settings'))
+
+
 @app.route('/google_auth')
 @login_required
 def google_auth():
