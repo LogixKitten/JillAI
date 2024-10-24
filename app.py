@@ -328,7 +328,7 @@ def load_user(user_id):
     connection.close()
     
     if user_data:
-        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], Gender=user_data['Gender'], Avatar=user_data['Avatar'])
+        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], Gender=user_data['Gender'], Avatar=user_data['ProfilePicture'])
     return None
 
 @app.route('/logout')
