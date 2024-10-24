@@ -32,7 +32,7 @@ google = oauth.register(
     redirect_uri='https://www.jillai.tech/callback',  # Your redirect URL
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',  # Automatically fetch metadata
     client_kwargs={
-        'scope': 'openid email profile https://www.googleapis.com/auth/calendar',
+        'scope': 'openid profile https://www.googleapis.com/auth/calendar',
         'token_endpoint_auth_method': 'client_secret_post',
         'access_type': 'offline',  # Ensure offline access to get the refresh token        
     }
