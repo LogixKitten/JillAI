@@ -152,7 +152,7 @@ def register():
             # Insert the new user into the Users table
             query = """
             INSERT INTO Users (email, Username, Passwd, FirstName, LastName, DateOfBirth, Gender, ZipCode, ProfilePicture)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(query, (email, userName, hashed_password, firstName, lastName, dateOfBirth, gender, zipCode, avatar_url))
             
