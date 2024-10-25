@@ -1,37 +1,10 @@
 // JavaScript for Account Settings Page
-
-// Function to fill placeholder text and set selections based on current user data
-function fillUserPlaceholders(currentUser) {
-    if (currentUser.FirstName) {
-        document.getElementById("firstName").placeholder = currentUser.FirstName;
-    }
-    if (currentUser.LastName) {
-        document.getElementById("lastName").placeholder = currentUser.LastName;
-    }
-    if (currentUser.email) {
-        document.getElementById("email").placeholder = currentUser.email;
-    }
-    if (currentUser.ZipCode) {
-        document.getElementById("zipCode").placeholder = currentUser.ZipCode;
-    }
-    if (currentUser.Gender) {
-        document.getElementById("gender").placeholder = currentUser.Gender;
-    }
-    
-    if (currentUser.UImode) {
-        document.getElementById("uiModeSelect").value = currentUser.UImode;
-    }
-    if (currentUser.CurrentPersona) {
-        document.getElementById("personaSelect").value = currentUser.CurrentPersona;
-        updatePersonaImage(); // Update the persona image based on the selection
-    }
-}
-
 // Function to update persona image based on selection
 function updatePersonaImage() {
     const uiMode = document.getElementById("uiModeSelect").value;
     const personaSelect = document.getElementById("personaSelect");
     const personaIcon = document.getElementById("personaIcon");
+    const selectedPersonaTitle = document.getElementById("selectedPersonaTitle");
     const selectedPersona = personaSelect.value;
     
     // Map of persona names to image URLs
@@ -59,24 +32,14 @@ function updatePersonaImage() {
     } else if (personaImages[selectedPersona]) {
         personaIcon.src = personaImages[selectedPersona];
     }
+
+    // Update the selected persona title
+    selectedPersonaTitle.innerText = selectedPersona.charAt(0).toUpperCase() + selectedPersona.slice(1);
 }
+
 
 // Function to handle form submission for updating preferences
 $(document).ready(function() {
-    // Assume currentUser object is passed from server-side rendering or fetched by an AJAX call
-    const currentUser = {
-        FirstName: "{{ current_user.FirstName }}",
-        LastName: "{{ current_user.LastName }}",
-        email: "{{ current_user.email }}",
-        ZipCode: "{{ current_user.ZipCode }}",
-        UImode: "{{ current_user.UIMode }}",
-        CurrentPersona: "{{ current_user.CurrentPersona }}",
-        Gender: "{{ current_user.Gender }}"
-    };
-
-    // Fill in the placeholders and set selections based on the current user data
-    fillUserPlaceholders(currentUser);
-
     $("form").on("submit", function(event) {
         // Check if newPassword and confirmNewPassword are identical
         const newPassword = $("#newPassword").val();
