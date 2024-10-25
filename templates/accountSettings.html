@@ -131,7 +131,9 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-light" data-bs-dismiss="modal" type="button">Cancel</button>
-                    <button class="btn btn-danger" type="button" href="{{ url_for('delete_account') }}">Confirm</button>
+                    <form method="POST" action="{{ url_for('delete_account') }}" style="display:inline;">
+                        <button class="btn btn-danger" type="submit">Confirm</button>
+                    </form>
                 </div>
             </div>
         </div>
