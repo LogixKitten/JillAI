@@ -602,6 +602,25 @@
                 <div class="col">
                     <h1 class="text-center" style="color: rgb(141,251,207);font-family: 'Annie Use Your Telescope', serif;font-weight: bold;">USER&nbsp;DASHBOARD</h1>
                     <p style="text-align: center;">Welcome {{ current_user.FirstName }}!</p>
+                    <!-- Toast Container -->
+                    <div aria-live="polite" aria-atomic="true" class="position-relative">
+                        <div class="toast-container">
+                        {% with messages = get_flashed_messages(with_categories=True) %}
+                            {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="toast align-items-center text-bg-{{ category }} border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true">
+                                <div class="d-flex">
+                                    <div class="toast-body">
+                                    {{ message }}
+                                    </div>
+                                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                </div>
+                            {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                        </div>
+                    </div>
                     <hr>
                     <div>
                     {% if token_required %}
@@ -639,6 +658,7 @@
     <script src="static/js/bold-and-dark.js"></script>
     <script defer src="static/js/dashboard.js"></script>
     <script defer src="static/js/quiz.js"></script>
+    <script src="static/js/toast.js"></script>
 </body>
 
 </html>

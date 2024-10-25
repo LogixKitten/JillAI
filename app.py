@@ -135,7 +135,7 @@ def register():
         lastName = data['lastName']
         dateOfBirth = data['dateOfBirth']
         genderValue = data['gender']  # This is the numerical value
-        ZipCode = data['ZipCode']
+        ZipCode = data['zipCode']
         
         # Map the genderValue to the corresponding string
         gender = {

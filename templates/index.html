@@ -50,6 +50,25 @@
             <div class="row text-bg-dark pt-5">
                 <div class="col-md-8 col-xl-6 col-xxl-10 text-center text-md-start mx-auto">
                     <div class="text-center">
+                        <!-- Toast Container -->
+                        <div aria-live="polite" aria-atomic="true" class="position-relative">
+                            <div class="toast-container">
+                            {% with messages = get_flashed_messages(with_categories=True) %}
+                                {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="toast align-items-center text-bg-{{ category }} border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true">
+                                    <div class="d-flex">
+                                        <div class="toast-body">
+                                        {{ message }}
+                                        </div>
+                                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                    </div>
+                                    </div>
+                                {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            </div>
+                        </div>
                         <p class="lead fs-2 fw-bold text-success mb-2"><br>Meet JillAI: Your Personal AI Assistant</p>
                         <h4 class="text-center"><br>JillAI is here to simplify your life and help you achieve your best self. With a sleek and modern design, JillAI adapts to your unique needs, offering tailored support through customizable personas. Whether you’re looking to stay organized, find quick information, or keep up with the weather, JillAI is your go-to solution. Embrace the future of assistance, because&nbsp;<span style="color: rgb(30,242,170);font-family: 'Annie Use Your Telescope', serif;font-size: 36px;"><br>everyone could use a personal assistant!</span></h4>
                     </div>
@@ -153,6 +172,7 @@
     <script src="static/js/bootstrap.min.js"></script>
     <script src="static/js/bold-and-dark.js"></script>
     <script src="static/js/smart-forms.min.js"></script>
+    <script src="static/js/toast.js"></script>
 </body>
 
 </html>
