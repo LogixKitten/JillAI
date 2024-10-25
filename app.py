@@ -135,7 +135,7 @@ def register():
         lastName = data['lastName']
         dateOfBirth = data['dateOfBirth']
         genderValue = data['gender']  # This is the numerical value
-        zipCode = data['zipCode']
+        ZipCode = data['ZipCode']
         
         # Map the genderValue to the corresponding string
         gender = {
@@ -159,7 +159,7 @@ def register():
             INSERT INTO Users (email, Username, Passwd, FirstName, LastName, DateOfBirth, Gender, ZipCode, ProfilePicture)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(query, (email, userName, hashed_password, firstName, lastName, dateOfBirth, gender, zipCode, avatar_url))
+            cursor.execute(query, (email, userName, hashed_password, firstName, lastName, dateOfBirth, gender, ZipCode, avatar_url))
             
             # Get the last inserted user_id (auto-incremented ID)
             user_id = cursor.lastrowid
@@ -183,7 +183,7 @@ def register():
                 LastName=lastName,
                 Username=userName,
                 email=email,
-                ZipCode=zipCode,
+                ZipCode=ZipCode,
                 Gender=gender,
                 Avatar=avatar_url,
                 UIMode='simple',
@@ -231,7 +231,7 @@ def login():
                 LastName=user_data['LastName'],
                 Username=user_data['Username'],
                 email=user_data['email'],
-                ZipCode=user_data['zipCode'],
+                ZipCode=user_data['ZipCode'],
                 Gender=user_data['Gender'],
                 Avatar=user_data['ProfilePicture'],
                 UIMode=user_preferences['UImode'],
@@ -365,7 +365,7 @@ def load_user(user_id):
     connection.close()
     
     if user_data:
-        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], ZipCode=user_data['zipCode'], Gender=user_data['Gender'], Avatar=user_data['ProfilePicture'], UIMode=user_preferences['UImode'], CurrentPersona=user_preferences['CurrentPersona'])
+        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], ZipCode=user_data['ZipCode'], Gender=user_data['Gender'], Avatar=user_data['ProfilePicture'], UIMode=user_preferences['UImode'], CurrentPersona=user_preferences['CurrentPersona'])
     return None
 
 @app.route('/logout')
