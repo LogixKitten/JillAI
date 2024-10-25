@@ -296,7 +296,7 @@ def update_preferences():
                 cursor.execute("UPDATE Users SET Passwd = %s WHERE user_id = %s", (new_hashed_password, user_id))
             else:
                 flash('Current password is incorrect.', 'error')
-                return redirect(url_for('account_settings'))
+                return jsonify({'message': 'Current password is incorrect.'}), 400
 
         # Update UIMode and CurrentPersona if provided
         if 'UImode' in data:
@@ -311,8 +311,8 @@ def update_preferences():
         cursor.close()
         connection.close()
 
-        flash('Preferences updated successfully.', 'success')
-        return redirect(url_for('account_settings'))
+        # Send a success response
+        return jsonify({'message': 'Preferences updated successfully.'}), 200
 
     except Exception as e:
         print(f"Error updating preferences: {e}")

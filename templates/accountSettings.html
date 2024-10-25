@@ -57,6 +57,16 @@
                     <div class="card">
                         <div class="card-body text-center d-flex flex-column align-items-center">
                             <form>
+                                <div class="toast" id="notificationToast" role="alert" aria-live="assertive" aria-atomic="true" style="display: none;">
+                                    <div class="toast-header">
+                                        <strong class="me-auto">Notification</strong>
+                                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                                    </div>
+                                    <div class="toast-body">
+                                        <!-- Message content will be injected here by JavaScript -->
+                                    </div>
+                                </div>
+
                                 <div style="margin-bottom: 32px;"><h2 class="fw-bold">Change Name</h2></div>
                                 <div style="margin-bottom: 16px;"><input class="form-control" type="text" id="firstName" name="firstName" minlength="2" placeholder="{{ current_user.FirstName }}"></div>
                                 <div style="margin-bottom: 16px;"><input class="form-control" type="text" id="lastName" name="lastName" minlength="2" placeholder="{{ current_user.LastName }}"></div>
@@ -68,16 +78,6 @@
                                 <div style="margin-bottom: 16px;"><input class="form-control" type="password" id="currentPassword" name="currentPassword" placeholder="Current Password"></div>
                                 <div style="margin-bottom: 16px;"><input class="form-control" type="password" id="newPassword" name="newPassword" placeholder="New Password" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" title="Must contain at least one uppercase letter, one lowercase letter, one number, and one special character, and must be at least 8 characters long"></div>
                                 <div style="margin-bottom: 16px;"><input class="form-control" type="password" id="confirmNewPassword" name="confirmNewPassword" placeholder="Confirm New Password" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" title="Must match the new password"></div>
-                                
-                                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                                    <div class="toast-header">
-                                        <strong class="me-auto">Notification</strong>
-                                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                                    </div>
-                                    <div class="toast-body">
-                                        <!-- Message content will be injected here by JavaScript -->
-                                    </div>
-                                </div>
                                 <div style="margin-bottom: 32px;"><h2 class="fw-bold">Change Zip Code</h2></div>
                                 <div style="margin-bottom: 32px;"><input class="form-control" type="text" id="zipCode" name="zipCode" minlength="5" placeholder="{{ current_user.ZipCode }}"></div>
                                 <hr>

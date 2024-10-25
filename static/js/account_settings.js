@@ -102,19 +102,20 @@ $(document).ready(function() {
             }
         });
 
-        // Make an AJAX POST request to update preferences
+        // Make AJAX POST request
         $.ajax({
             url: "/update_preferences",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(formData),
             success: function(response) {
-                // Show success toast notification
-                showToast("Preferences updated successfully.", 'success');
+                // Display success toast
+                showToast(response.message, 'success');
             },
-            error: function(xhr, status, error) {
-                // Show error toast notification
-                showToast("Failed to update preferences", 'error');
+            error: function(xhr) {
+                // Display error toast
+                const errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : "Failed to update preferences. Please try again.";
+                showToast(errorMessage, 'error');
             }
         });
     });
