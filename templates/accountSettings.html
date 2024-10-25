@@ -56,14 +56,14 @@
                 <div class="col-md-6 col-xl-4">
                     <div class="card">
                         <div class="card-body text-center d-flex flex-column align-items-center">
-                            <form action="{{ url_for('update_preferences') }}" method="post">
+                            <form>
                                 <div style="margin-bottom: 32px;"><h2 class="fw-bold">Change Name</h2></div>
-                                <div style="margin-bottom: 16px;"><input class="form-control" type="text" id="firstName" name="firstName" minlength="2" placeholder="First Name"></div>
-                                <div style="margin-bottom: 16px;"><input class="form-control" type="text" id="lastName" name="lastName" minlength="2" placeholder="Last Name"></div>
+                                <div style="margin-bottom: 16px;"><input class="form-control" type="text" id="firstName" name="firstName" minlength="2" placeholder="{{ current_user.FirstName }}"></div>
+                                <div style="margin-bottom: 16px;"><input class="form-control" type="text" id="lastName" name="lastName" minlength="2" placeholder="{{ current_user.LastName }}"></div>
                                 <div style="margin-bottom: 32px;"><h2 class="fw-bold">Change Email</h2></div>
-                                <div style="margin-bottom: 16px;"><input class="form-control" type="email" id="email" name="email" placeholder="Email"></div>
+                                <div style="margin-bottom: 16px;"><input class="form-control" type="email" id="email" name="email" placeholder="{{ current_user.email }}"></div>
                                 <div style="margin-bottom: 32px;"><h2 class="fw-bold">Change Gender</h2></div>
-                                <div style="margin-bottom: 16px;"><input class="form-control" type="text" id="gender" name="gender" placeholder="Gender"></div>
+                                <div style="margin-bottom: 16px;"><input class="form-control" type="text" id="gender" name="gender" placeholder="{{ current_user.Gender }}"></div>
                                 <div style="margin-bottom: 32px;"><h2 class="fw-bold">Change Password</h2></div>
                                 <div style="margin-bottom: 16px;"><input class="form-control" type="password" id="currentPassword" name="currentPassword" placeholder="Current Password"></div>
                                 <div style="margin-bottom: 16px;"><input class="form-control" type="password" id="newPassword" name="newPassword" placeholder="New Password" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" title="Must contain at least one uppercase letter, one lowercase letter, one number, and one special character, and must be at least 8 characters long"></div>
@@ -78,37 +78,38 @@
                                     </div>
                                 </div>                                
                                 <div style="margin-bottom: 32px;"><h2 class="fw-bold">Change Zip Code</h2></div>
-                                <div style="margin-bottom: 32px;"><input class="form-control" type="text" id="zipCode" name="zipCode" minlength="5" placeholder="Zip Code"></div>
+                                <div style="margin-bottom: 32px;"><input class="form-control" type="text" id="zipCode" name="zipCode" minlength="5" placeholder="{{ current_user.ZipCode }}"></div>
                                 <hr>
                                 <div style="margin-bottom: 32px;"><h2 class="fw-bold">UI Mode</h2></div>
                                 <div style="margin-bottom: 16px;"><label for="uiModeSelect" class="fw-bold mb-0">Choose UI Mode:</label>
                                 <select id="uiModeSelect" name="uiMode" class="form-select mb-4">
-                                    <option value="simple" {% if current_user.UImode == 'simple' %}selected{% endif %}>Simple</option>
-                                    <option value="fancy" {% if current_user.UImode == 'fancy' %}selected{% endif %}>Fancy</option>
+                                    <option value="simple" {% if current_user.UIMode == 'simple' %}selected{% endif %}>Simple</option>
+                                    <option value="fancy" {% if current_user.UIMode == 'fancy' %}selected{% endif %}>Fancy</option>
                                 </select></div>
                                 <div style="margin-bottom: 32px;">
                                 <hr>
                                     <h2 class="fw-bold">Change Persona</h2>
+                                    <h4 class="fw-bold">{{ current_user.CurrentPersona | capitalize }}</h5>
                                 </div>
-                                <img id="personaIcon" src="{{ current_user.Avatar }}" alt="Persona Image" width="250px" style="margin-bottom: 16px;margin-top: 0px;" />
+                                <img id="personaIcon" src="{{ current_user.CurrentPersona }}" alt="Persona Image" width="250px" style="margin-bottom: 16px;margin-top: 0px;">
                                 <br>
                                 <label for="personaSelect" class="fw-bold mb-0">Choose a Persona:</label>
                                 <select id="personaSelect" onchange="updatePersonaImage()" name="persona" class="form-select mb-4">
-                                    <option value="jill">Jill</option>
-                                    <option value="zee">Zee</option>
-                                    <option value="whiskers">Whiskers</option>
-                                    <option value="buddy">Buddy</option>
-                                    <option value="sean">Sean</option>
-                                    <option value="olivia">Olivia</option>
-                                    <option value="arlo">Arlo</option>
-                                    <option value="max">Max</option>
-                                    <option value="frank">Frank</option>
-                                    <option value="kai">Kai</option>
-                                    <option value="sophia">Sophia</option>
-                                    <option value="leo">Leo</option>
-                                    <option value="dante">Dante</option>
-                                    <option value="grace">Grace</option>
-                                    <option value="alex">Alex</option>
+                                    <option value="jill" {% if current_user.CurrentPersona == 'jill' %}selected{% endif %}>Jill</option>
+                                    <option value="zee" {% if current_user.CurrentPersona == 'zee' %}selected{% endif %}>Zee</option>
+                                    <option value="whiskers" {% if current_user.CurrentPersona == 'whiskers' %}selected{% endif %}>Whiskers</option>
+                                    <option value="buddy" {% if current_user.CurrentPersona == 'buddy' %}selected{% endif %}>Buddy</option>
+                                    <option value="sean" {% if current_user.CurrentPersona == 'sean' %}selected{% endif %}>Sean</option>
+                                    <option value="olivia" {% if current_user.CurrentPersona == 'olivia' %}selected{% endif %}>Olivia</option>
+                                    <option value="arlo" {% if current_user.CurrentPersona == 'arlo' %}selected{% endif %}>Arlo</option>
+                                    <option value="max" {% if current_user.CurrentPersona == 'max' %}selected{% endif %}>Max</option>
+                                    <option value="frank" {% if current_user.CurrentPersona == 'frank' %}selected{% endif %}>Frank</option>
+                                    <option value="kai" {% if current_user.CurrentPersona == 'kai' %}selected{% endif %}>Kai</option>
+                                    <option value="sophia" {% if current_user.CurrentPersona == 'sophia' %}selected{% endif %}>Sophia</option>
+                                    <option value="leo" {% if current_user.CurrentPersona == 'leo' %}selected{% endif %}>Leo</option>
+                                    <option value="dante" {% if current_user.CurrentPersona == 'dante' %}selected{% endif %}>Dante</option>
+                                    <option value="grace" {% if current_user.CurrentPersona == 'grace' %}selected{% endif %}>Grace</option>
+                                    <option value="alex" {% if current_user.CurrentPersona == 'alex' %}selected{% endif %}>Alex</option>
                                 </select>
                                 <button class="btn btn-primary" type="submit" style="margin-top: 32px;">Submit Changes</button>
                             </form>
