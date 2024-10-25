@@ -89,7 +89,7 @@
                                     <h2 class="fw-bold">Change Persona</h2>
                                     <h4 class="fw-bold" id="selectedPersonaTitle">{{ current_user.CurrentPersona | capitalize }}</h5>
                                 </div>
-                                <img id="personaIcon" src="{{ url_for('static', filename='img/personas/' + current_user.CurrentPersona + '.png') }}" alt="Persona Image" width="128px" height="128px" style="margin-bottom: 16px; margin-top: 0px; border-radius: 50%; border: 10px solid rgb(75, 252, 128);">
+                                <img id="personaIcon" src="{{ url_for('static', filename='img/personas/' + current_user.CurrentPersona + '.png') }}" alt="Persona Image" width="150px" height="150px" style="margin-bottom: 16px; margin-top: 0px; border-radius: 50%; border: 4px solid #8dfbcf;">
                                 <br>
                                 <label for="personaSelect" class="fw-bold mb-0">Choose a Persona:</label>
                                 <select id="personaSelect" onchange="updatePersonaImage()" name="persona" class="form-select mb-4">
