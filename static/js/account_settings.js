@@ -26,7 +26,7 @@ function updatePersonaImage() {
     };
 
     // Update the image source
-    if (uiMode === 'simple') {
+    if (uiMode === 'Simple') {
         personaIcon.src = 'static/img/personas/generic.png';
     } else if (personaImages[selectedPersona]) {
         personaIcon.src = personaImages[selectedPersona];
@@ -35,6 +35,19 @@ function updatePersonaImage() {
     // Update the selected persona title
     selectedPersonaTitle.innerText = selectedPersona.charAt(0).toUpperCase() + selectedPersona.slice(1);
 }
+
+// Ensure the persona image is set correctly when the page loads
+document.addEventListener("DOMContentLoaded", function() {
+    updatePersonaImage(); // Call the function initially to set the correct persona image
+
+    // Attach event listener to personaSelect to update the image on change
+    const personaSelect = document.getElementById("personaSelect");
+    personaSelect.addEventListener("change", updatePersonaImage);
+
+    // Attach event listener to uiModeSelect to update the image on change
+    const uiModeSelect = document.getElementById("uiModeSelect");
+    uiModeSelect.addEventListener("change", updatePersonaImage);
+});
 
 // Function to show a toast notification
 function showToast(message, type) {
@@ -61,7 +74,7 @@ function showToast(message, type) {
         toastElement.style.display = "block";
 
         // Trigger the toast to display
-        const toast = new bootstrap.Toast(toastElement);
+        const toast = new bootstrap.Toast(toastElement, { autohide: true, delay: 5000 });
         toast.show();
     }
 }
