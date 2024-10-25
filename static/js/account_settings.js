@@ -37,22 +37,50 @@ function updatePersonaImage() {
     selectedPersonaTitle.innerText = selectedPersona.charAt(0).toUpperCase() + selectedPersona.slice(1);
 }
 
+// Function to show a toast notification
+function showToast(message, type) {
+    const toastBody = document.querySelector(".toast-body");
+    const toastElement = document.querySelector(".toast");
+    const toastHeader = document.querySelector(".toast-header strong");
+
+    if (message && message.trim() !== "") {
+        // Inject message content
+        toastBody.innerText = message;
+
+        // Set different styling based on the type (success or error)
+        if (type === 'success') {
+            toastElement.classList.remove('bg-danger');
+            toastElement.classList.add('bg-success');
+            toastHeader.innerText = "Success";
+        } else if (type === 'error') {
+            toastElement.classList.remove('bg-success');
+            toastElement.classList.add('bg-danger');
+            toastHeader.innerText = "Error";
+        }
+
+        // Make the toast visible if it was hidden
+        toastElement.style.display = "block";
+
+        // Trigger the toast to display
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
+    }
+}
 
 // Function to handle form submission for updating preferences
 $(document).ready(function() {
     $("form").on("submit", function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
         // Check if newPassword and confirmNewPassword are identical
         const newPassword = $("#newPassword").val();
         const confirmNewPassword = $("#confirmNewPassword").val();
 
         if (newPassword && newPassword !== confirmNewPassword) {
             // Show error toast notification if passwords do not match
-            $(".toast-body").text("New password and confirm password do not match.");
-            $(".toast").toast({ delay: 3000 });
-            $(".toast").toast("show");
+            showToast("New Password Must Match Confirmation.", 'error');
             return; // Stop form submission
         }
-        event.preventDefault(); // Prevent the default form submission
 
         // Extract form data
         const formData = {
@@ -82,15 +110,11 @@ $(document).ready(function() {
             data: JSON.stringify(formData),
             success: function(response) {
                 // Show success toast notification
-                $(".toast-body").text("Preferences updated successfully.");
-                $(".toast").toast({ delay: 3000 });
-                $(".toast").toast("show");
+                showToast("Preferences updated successfully.", 'success');
             },
             error: function(xhr, status, error) {
                 // Show error toast notification
-                $(".toast-body").text("Failed to update preferences. Please try again.");
-                $(".toast").toast({ delay: 3000 });
-                $(".toast").toast("show");
+                showToast("Failed to update preferences", 'error');
             }
         });
     });
