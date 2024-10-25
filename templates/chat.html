@@ -90,7 +90,7 @@
             transports: ['websocket', 'polling']  // Allow fallback to polling if WebSocket fails
         });
 
-        const userName = "{{ FirstName|e }}";
+        const userName = "{{ current_user.FirstName|e }}";
         const userRoom = "{{ room|e }}";
         
         // Join the assigned room
