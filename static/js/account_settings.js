@@ -1,4 +1,3 @@
-// JavaScript for Account Settings Page
 // Function to update persona image based on selection
 function updatePersonaImage() {
     const uiMode = document.getElementById("uiModeSelect").value;
@@ -67,32 +66,20 @@ function showToast(message, type) {
     }
 }
 
-// Function to handle form submission for updating preferences
+// Example AJAX request to update preferences and prevent page reload
 $(document).ready(function() {
-    $("form").on("submit", function(event) {
-        event.preventDefault(); // Prevent the default form submission
-
-        // Check if newPassword and confirmNewPassword are identical
-        const newPassword = $("#newPassword").val();
-        const confirmNewPassword = $("#confirmNewPassword").val();
-
-        if (newPassword && newPassword !== confirmNewPassword) {
-            // Show error toast notification if passwords do not match
-            showToast("New Password Must Match Confirmation.", 'error');
-            return; // Stop form submission
-        }
-
-        // Extract form data
+    $("#accountSettingsForm").on("submit", function(event) {
+        event.preventDefault(); // Prevent default form submission
+        
         const formData = {
-            FirstName: $("#firstName").val(),
-            LastName: $("#lastName").val(),
-            email: $("#email").val(),
-            currentPassword: $("#currentPassword").val(),
-            newPassword: $("#newPassword").val(),
-            ZipCode: $("#zipCode").val(),
-            Gender: $("#gender").val(),
-            UImode: $("#uiModeSelect").val(),
-            CurrentPersona: $("#personaSelect").val()
+            firstName: document.getElementById("firstName").value,
+            lastName: document.getElementById("lastName").value,
+            email: document.getElementById("email").value,
+            currentPassword: document.getElementById("currentPassword").value,
+            newPassword: document.getElementById("newPassword").value,
+            zipCode: document.getElementById("zipCode").value,
+            UImode: document.getElementById("uiModeSelect").value,
+            CurrentPersona: document.getElementById("personaSelect").value
         };
 
         // Remove empty fields to avoid unnecessary updates

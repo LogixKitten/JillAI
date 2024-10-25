@@ -269,18 +269,23 @@ def update_preferences():
         if 'FirstName' in data:
             cursor.execute("UPDATE Users SET FirstName = %s WHERE user_id = %s", (data['FirstName'], user_id))
             current_user.FirstName = data['FirstName']
+            print(data['FirstName'])
         if 'LastName' in data:
             cursor.execute("UPDATE Users SET LastName = %s WHERE user_id = %s", (data['LastName'], user_id))
             current_user.LastName = data['LastName']
+            print(data['LastName'])
         if 'email' in data:
             cursor.execute("UPDATE Users SET email = %s WHERE user_id = %s", (data['email'], user_id))
             current_user.email = data['email']
+            print(data['email'])
         if 'ZipCode' in data:
             cursor.execute("UPDATE Users SET ZipCode = %s WHERE user_id = %s", (data['ZipCode'], user_id))
             current_user.ZipCode = data['ZipCode']
+            print(data['ZipCode'])
         if 'gender' in data:
             cursor.execute("UPDATE Users SET Gender = %s WHERE user_id = %s", (data['gender'], user_id))
             current_user.Gender = data['gender']
+            print(data['ZipCode'])
 
         # Update password if currentPassword and newPassword are provided
         if 'currentPassword' in data and 'newPassword' in data:
@@ -294,7 +299,9 @@ def update_preferences():
                 new_hashed_password = bcrypt.generate_password_hash(data['newPassword']).decode('utf-8')
                 # Update the password in the database
                 cursor.execute("UPDATE Users SET Passwd = %s WHERE user_id = %s", (new_hashed_password, user_id))
+                print("Password updated")
             else:
+                print('Current password is incorrect.', 'error')
                 flash('Current password is incorrect.', 'error')
                 return jsonify({'message': 'Current password is incorrect.'}), 400
 
@@ -302,9 +309,11 @@ def update_preferences():
         if 'UImode' in data:
             cursor.execute("UPDATE Preferences SET UImode = %s WHERE user_id = %s", (data['UImode'], user_id))
             current_user.UIMode = data['UImode']
+            print(data['UImode'])
         if 'CurrentPersona' in data:
             cursor.execute("UPDATE Preferences SET CurrentPersona = %s WHERE user_id = %s", (data['CurrentPersona'], user_id))
             current_user.CurrentPersona = data['CurrentPersona']
+            print(data['CurrentPersona'])
 
         # Commit the changes and close the connection
         connection.commit()
@@ -312,6 +321,7 @@ def update_preferences():
         connection.close()
 
         # Send a success response
+        print("success")
         return jsonify({'message': 'Preferences updated successfully.'}), 200
 
     except Exception as e:
