@@ -6,12 +6,13 @@ from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 import os
 from flask_socketio import SocketIO, join_room, leave_room, send
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from authlib.integrations.flask_client import OAuth
 import jwt
 from jwt import DecodeError, ExpiredSignatureError
 from urllib.request import urlopen
 import json
+from pymongo import MongoClient
 
 # Load environment variables from .env file
 load_dotenv()
@@ -64,8 +65,7 @@ class User(UserMixin):
         """Flask-Login requires this method to return the user's ID."""
         return str(self.user_id)  # Return the primary key (user_id) as a string
 
-
-# Database configuration
+# SQL Database configuration
 db_config = {
     'host': 'localhost',
     'user': os.getenv('MYSQL_USER'),
@@ -75,6 +75,114 @@ db_config = {
 
 def get_db_connection():
     return mysql.connector.connect(**db_config)
+
+# MongoDB configuration
+mongo_config = {
+    'host': 'localhost',
+    'port': 27017,
+    'username': os.getenv('MONGO_USER'),
+    'password': os.getenv('MONGO_PASSWORD'),
+    'authSource': 'admin'
+}
+
+# Function to get MongoDB client
+def get_mongo_client():
+    client = MongoClient(
+        host=mongo_config['host'],
+        port=mongo_config['port'],
+        username=mongo_config['username'],
+        password=mongo_config['password'],
+        authSource=mongo_config['authSource']
+    )
+    return client
+
+# Function to get MongoDB collections
+def get_mongo_collections():
+    client = get_mongo_client()
+    db = client[os.getenv('MONGO_DATABASE')]
+    user_index_collection = db['user_index']
+    chat_history_collection = db['chat_history']
+    return user_index_collection, chat_history_collection
+
+# Example usage of MongoDB collections
+def save_user_agent(user_id, agent_name):
+    user_index_collection, _ = get_mongo_collections()
+    user_index = user_index_collection.find_one({"user_id": user_id})
+
+    if not user_index:
+        # If no user index exists, create a new one
+        user_index = {
+            "user_id": user_id,
+            "UserAgents": [],
+            "ChatHistory": []
+        }
+        user_index_collection.insert_one(user_index)
+
+    # If agent is not already in UserAgents[], add it
+    if agent_name not in user_index["UserAgents"]:
+        user_index_collection.update_one(
+            {"user_id": user_id},
+            {"$push": {"UserAgents": agent_name}}
+        )
+
+# Example usage of saving chat history
+def save_chat_message(user_id, sender, sender_name, message, tokens_used=None):
+    _, chat_history_collection = get_mongo_collections()
+    today = datetime.now(timezone.utc).strftime('%m-%d-%Y')
+    document_id = f"{user_id}Chat{today}"
+
+    # Insert or update the chat history document
+    chat_entry = {
+        "timestamp": datetime.now(timezone.utc),
+        "sender": sender,
+        "sender_name": sender_name,
+        "message": message,
+        "token_use": tokens_used if sender == "Agent" else None
+    }
+
+    chat_history_collection.update_one(
+        {"document_id": document_id},
+        {"$push": {"chat_history": chat_entry}},
+        upsert=True  # Create the document if it doesn't exist
+    )
+
+# Function to retrieve all user logs sorted chronologically in JSON format
+def get_all_user_logs(user_id):
+    _, chat_history_collection = get_mongo_collections()
+    # Sorting by "date" and also sorting each chat_history entry by "timestamp"
+    chat_documents = chat_history_collection.find({"user_id": user_id}).sort("document_id")
+    all_logs = []
+
+    for document in chat_documents:
+        sorted_chat_history = sorted(document["chat_history"], key=lambda x: x["timestamp"])
+        all_logs.append({
+            "document_id": document["document_id"],
+            "chat_history": sorted_chat_history
+        })
+
+    return json.dumps(all_logs, default=str, indent=4)
+
+# Function to calculate the total sum of all tokens of a user between two dates
+def calculate_token_usage(user_id, start_date, end_date):
+    _, chat_history_collection = get_mongo_collections()
+    start_date_str = start_date.strftime('%m-%d-%Y')
+    end_date_str = end_date.strftime('%m-%d-%Y')
+
+    chat_documents = chat_history_collection.find({
+        "document_id": {
+            "$gte": f"{user_id}Chat{start_date_str}",
+            "$lte": f"{user_id}Chat{end_date_str}"
+        }
+    })
+
+    total_tokens = 0
+    for document in chat_documents:
+        for entry in document["chat_history"]:
+            if entry["sender"] == "Agent" and "token_use" in entry and entry["token_use"] is not None:
+                total_tokens += entry["token_use"]
+
+    return total_tokens
+
 
 @app.route('/')
 def home():
@@ -549,13 +657,13 @@ def privacy_policy():
 
 @app.route('/tos')
 def tos():
-    return render_template('tos.html', user=current_user)   
+    return render_template('tos.html', user=current_user)  
 
 @app.route('/chat_room')
 @login_required
 def chat_room():
     user_room = f"user_room_{current_user.user_id}"
-    return render_template('chat.html', user=current_user, FirstName=current_user.FirstName, room=user_room)
+    return render_template('chat.html', user=current_user, room=user_room)
 
 # Socket.io events
 @socketio.on('join')
