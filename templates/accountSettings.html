@@ -68,6 +68,7 @@
                                 <div style="margin-bottom: 16px;"><input class="form-control" type="password" id="currentPassword" name="currentPassword" placeholder="Current Password"></div>
                                 <div style="margin-bottom: 16px;"><input class="form-control" type="password" id="newPassword" name="newPassword" placeholder="New Password" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" title="Must contain at least one uppercase letter, one lowercase letter, one number, and one special character, and must be at least 8 characters long"></div>
                                 <div style="margin-bottom: 16px;"><input class="form-control" type="password" id="confirmNewPassword" name="confirmNewPassword" placeholder="Confirm New Password" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" title="Must match the new password"></div>
+                                
                                 <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
                                     <div class="toast-header">
                                         <strong class="me-auto">Notification</strong>
@@ -76,7 +77,7 @@
                                     <div class="toast-body">
                                         <!-- Message content will be injected here by JavaScript -->
                                     </div>
-                                </div>                                
+                                </div>
                                 <div style="margin-bottom: 32px;"><h2 class="fw-bold">Change Zip Code</h2></div>
                                 <div style="margin-bottom: 32px;"><input class="form-control" type="text" id="zipCode" name="zipCode" minlength="5" placeholder="{{ current_user.ZipCode }}"></div>
                                 <hr>
@@ -91,7 +92,7 @@
                                     <h2 class="fw-bold">Change Persona</h2>
                                     <h4 class="fw-bold">{{ current_user.CurrentPersona | capitalize }}</h5>
                                 </div>
-                                <img id="personaIcon" src="{{ current_user.CurrentPersona }}" alt="Persona Image" width="250px" style="margin-bottom: 16px;margin-top: 0px;">
+                                <img id="personaIcon" src="{{ url_for('static', filename='img/personas/' + current_user.CurrentPersona + '.png') }}" alt="Persona Image" width="250px" style="margin-bottom: 16px;margin-top: 0px;">
                                 <br>
                                 <label for="personaSelect" class="fw-bold mb-0">Choose a Persona:</label>
                                 <select id="personaSelect" onchange="updatePersonaImage()" name="persona" class="form-select mb-4">

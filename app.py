@@ -48,12 +48,13 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 class User(UserMixin):
-    def __init__(self, user_id, FirstName, LastName, Username, email, Gender, Avatar, UIMode, CurrentPersona):
+    def __init__(self, user_id, FirstName, LastName, Username, email, ZipCode, Gender, Avatar, UIMode, CurrentPersona):
         self.user_id = user_id  # This is the 'user_id' from the Users table
         self.FirstName = FirstName
         self.LastName = LastName
         self.Username = Username
         self.email = email
+        self.ZipCode = ZipCode
         self.Gender = Gender
         self.Avatar = Avatar
         self.UIMode = UIMode
@@ -182,6 +183,7 @@ def register():
                 LastName=lastName,
                 Username=userName,
                 email=email,
+                ZipCode=zipCode,
                 Gender=gender,
                 Avatar=avatar_url,
                 UIMode='simple',
@@ -229,6 +231,7 @@ def login():
                 LastName=user_data['LastName'],
                 Username=user_data['Username'],
                 email=user_data['email'],
+                ZipCode=user_data['zipCode'],
                 Gender=user_data['Gender'],
                 Avatar=user_data['ProfilePicture'],
                 UIMode=user_preferences['UImode'],
@@ -362,7 +365,7 @@ def load_user(user_id):
     connection.close()
     
     if user_data:
-        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], Gender=user_data['Gender'], Avatar=user_data['ProfilePicture'], UIMode=user_preferences['UImode'], CurrentPersona=user_preferences['CurrentPersona'])
+        return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], email=user_data['email'], ZipCode=user_data['zipCode'], Gender=user_data['Gender'], Avatar=user_data['ProfilePicture'], UIMode=user_preferences['UImode'], CurrentPersona=user_preferences['CurrentPersona'])
     return None
 
 @app.route('/logout')
