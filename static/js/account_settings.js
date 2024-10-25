@@ -26,7 +26,7 @@ function updatePersonaImage() {
     };
 
     // Update the image source
-    if (uiMode === 'Simple') {
+    if (uiMode === 'simple') {
         personaIcon.src = 'static/img/personas/generic.png';
     } else if (personaImages[selectedPersona]) {
         personaIcon.src = personaImages[selectedPersona];

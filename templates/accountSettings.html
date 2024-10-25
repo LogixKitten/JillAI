@@ -87,7 +87,7 @@
                                 <div style="margin-bottom: 32px;">
                                 <hr>
                                     <h2 class="fw-bold">Change Persona</h2>
-                                    <h4 class="fw-bold">{{ current_user.CurrentPersona | capitalize }}</h5>
+                                    <h4 class="fw-bold" id="selectedPersonaTitle">{{ current_user.CurrentPersona | capitalize }}</h5>
                                 </div>
                                 <img id="personaIcon" src="{{ url_for('static', filename='img/personas/' + current_user.CurrentPersona + '.png') }}" alt="Persona Image" width="250px" style="margin-bottom: 16px;margin-top: 0px;">
                                 <br>
