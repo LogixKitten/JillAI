@@ -13,6 +13,9 @@ from jwt import DecodeError, ExpiredSignatureError
 from urllib.request import urlopen
 import json
 from pymongo import MongoClient
+from letta import create_client, LLMConfig, EmbeddingConfig
+from letta.schemas.memory import ChatMemory
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -42,8 +45,12 @@ google = oauth.register(
     }
 )
 
-# Initialize Flask-SocketIO
-socketio = SocketIO(app, async_mode='eventlet')
+# Conditionally apply eventlet only in production
+if os.environ.get("FLASK_ENV") == "production":
+    socketio = SocketIO(app, async_mode="eventlet")
+else:
+    # Use default Flask development server in dev mode
+    socketio = SocketIO(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -67,7 +74,7 @@ class User(UserMixin):
 
 # SQL Database configuration
 db_config = {
-    'host': 'localhost',
+    'host': os.getenv('DB_HOST', 'localhost'),
     'user': os.getenv('MYSQL_USER'),
     'password': os.getenv('MYSQL_PASSWORD'),
     'database': os.getenv('MYSQL_DATABASE')
@@ -78,7 +85,7 @@ def get_db_connection():
 
 # MongoDB configuration
 mongo_config = {
-    'host': 'localhost',
+    'host': os.getenv('DB_HOST', 'localhost'),
     'port': 27017,
     'username': os.getenv('MONGO_USER'),
     'password': os.getenv('MONGO_PASSWORD'),
@@ -182,6 +189,30 @@ def calculate_token_usage(user_id, start_date, end_date):
                 total_tokens += entry["token_use"]
 
     return total_tokens
+
+client = create_client()
+
+agent_state = client.create_agent(
+    name="GPT4MiniAgent",
+    memory=ChatMemory(
+        persona="I am an AI assistant powered by GPT-4-mini.",
+        human="Name: User"
+    ),
+    llm_config=LLMConfig(
+        model="gpt-4o-mini",
+        model_endpoint_type="openai",
+        model_endpoint="https://api.openai.com/v1",
+        context_window=128000
+    ),
+    embedding_config=EmbeddingConfig.default_config(model_name="text-embedding-ada-002"),
+    description="An AI assistant using the GPT-4-mini model."
+)
+
+# Start a conversation with the agent
+response = client.send_message(agent_id=agent_state.id, role="user", message="Hello, my name is Alice. I won't be able to respond to your message as this is a test, but can you tell me a joke?")
+
+print("Agent response:", response.messages[-1].content)
+print("Usage:", response.usage)
 
 
 @app.route('/')
@@ -685,7 +716,7 @@ def handle_message(data):
     room = data['room']
     username = data['username']
     message = data['message']
-    send(f'Assistant: Responce to {message}', to=room)
+    send(f'Assistant: Response to {message}', to=room)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
