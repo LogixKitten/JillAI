@@ -190,30 +190,33 @@ def calculate_token_usage(user_id, start_date, end_date):
 
     return total_tokens
 
-client = create_client()
+try:
+    client = create_client()
 
-agent_state = client.create_agent(
-    name="GPT4MiniAgent",
-    memory=ChatMemory(
+    agent_state = client.create_agent(
+        name="GPT4MiniAgent",
+        memory=ChatMemory(
         persona="I am an AI assistant powered by GPT-4-mini.",
         human="Name: User"
-    ),
-    llm_config=LLMConfig(
-        model="gpt-4o-mini",
-        model_endpoint_type="openai",
-        model_endpoint="https://api.openai.com/v1",
-        context_window=128000
-    ),
-    embedding_config=EmbeddingConfig.default_config(model_name="text-embedding-ada-002"),
-    description="An AI assistant using the GPT-4-mini model."
-)
+        ),
+        llm_config=LLMConfig(
+            model="gpt-4o-mini",
+            model_endpoint_type="openai",
+            model_endpoint="https://api.openai.com/v1",
+            context_window=128000
+        ),
+        embedding_config=EmbeddingConfig.default_config(model_name="text-embedding-ada-002"),
+        description="An AI assistant using the GPT-4-mini model."
+    )
+  
+    # Start a conversation with the agent
+    response = client.send_message(agent_id=agent_state.id, role="user", message="Hello, my name is Alice. I won't be able to respond to your message as this is a test, but can you tell me a joke?")
 
-# Start a conversation with the agent
-response = client.send_message(agent_id=agent_state.id, role="user", message="Hello, my name is Alice. I won't be able to respond to your message as this is a test, but can you tell me a joke?")
-
-print("Agent response:", response.messages[-1].content)
-print("Usage:", response.usage)
-
+    print("Agent response:", response.messages[-1].content)
+    print("Usage:", response.usage)
+except Exception as e:
+    print("Letta initialization failed with error:", str(e))
+    
 
 @app.route('/')
 def home():
