@@ -63,11 +63,11 @@ google = oauth.register(
 # Conditionally apply eventlet only in production
 if os.environ.get("FLASK_ENV") == "production":
     socketio = SocketIO(app, async_mode="eventlet")
-    letta_url = "http://localhost:8283"
+    letta_url = "http://localhost:8083"
 else:
     # Use default Flask development server in dev mode
     socketio = SocketIO(app, ping_interval=10, ping_timeout=5, async_mode="threading")
-    letta_url = f"http://{os.getenv('DB_HOST')}:8283"
+    letta_url = f"http://{os.getenv('DB_HOST')}:8083"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -653,7 +653,7 @@ Here's how I might talk:
             "model_endpoint_type": "openai",
             "model_endpoint": "https://api.openai.com/v1",
             "context_window": 32000,
-            #"put_inner_thoughts_in_kwargs": True   # Check with devs to see if this is how to enable inner thoughts
+            "put_inner_thoughts_in_kwargs": True
         },
         "metadata_": {
             "persona": f"I am {persona_name.capitalize()}, a friendly human working in the Personal Assistant firm, JillAI.",
