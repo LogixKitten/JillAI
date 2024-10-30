@@ -11,11 +11,12 @@
     <noscript><link rel="stylesheet" href="/static/css/bootstrap.min.css"></noscript>
     <link rel="preload" href="/static/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="static/css/style.css"></noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Agbalumo&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope&amp;display=swap">
-    <link rel="stylesheet" href="static/css/chatbox.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Agbalumo">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope">
+    <!-- jQuery CDN (latest version 3.x) -->
+    <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -46,31 +47,29 @@
             </div>
         </div>
     </nav>
-    <section class="py-5">
-        <div class="container py-5">
-            <div class="row">
-                <div class="col">
-                    <h1 class="text-center">Chat</h1>
-                </div>
+    <section class="chat-window">
+        <div class="chat-container">
+
+            <div id="chat-box" class="chat-box">
+                <!-- Chat messages will appear here -->
             </div>
 
-            <!-- Chat Box Section -->
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="chat-container">
-                        <div id="chat-box" class="chat-box">
-                            <!-- Chat messages will appear here -->
-                        </div>
-
-                        <div class="input-container">
-                            <input type="text" id="chat-input" class="form-control" placeholder="Type your message here...">
-                            <button id="send-btn" class="btn btn-primary">Send</button>
-                        </div>
-                    </div>
+            <div class="input-container">
+                <button id="attachment-btn">
+                    <img src="/static/img/icons/attachmentButtonIcon.svg" alt="Attachment" id="attachment-icon">
+                </button>                
+                <button id="emoji-btn">
+                    <img src="/static/img/icons/emojiButton.svg" alt="Emoji Picker" id="emoji-icon">
+                </button>
+                <div class="emoji-tooltip" role="tooltip">
+                    <emoji-picker></emoji-picker>
                 </div>
-            </div>
-
-        </div>
+                <input id="chat-input" class="form-control" type="text" placeholder="Type your message here...">
+                <button id="send-btn">
+                    <img src="/static/img/icons/sendButtonIcon.svg" alt="Send" id="send-icon">
+                </button>
+            </div>            
+        </div>        
     </section>
     <footer class="bg-dark">
         <div class="container py-4 py-lg-5">
@@ -79,11 +78,84 @@
                 <p class="mb-0"><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a> &nbsp;-&nbsp;<a href="{{ url_for('tos') }}">Terms Of Service</a> &nbsp;-&nbsp; Copyright © 2024 JillAI</p>
             </div>
         </div>
-    </footer>
+    </footer>    
+
+    <script>
+        const CurrentUser = JSON.parse('{{ jsonuser | tojson | safe }}');
+        const userRoom = "{{ room | e }}";
+    </script>
+
     <script src="static/js/bootstrap.min.js"></script>
     <script src="static/js/bold-and-dark.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="static/js/chat.js"></script>
+
+    <script type="module">
+        import * as Popper from 'https://cdn.jsdelivr.net/npm/@popperjs/core@^2/dist/esm/index.js';
+        import insertText from 'https://cdn.jsdelivr.net/npm/insert-text-at-cursor@0.3.0/index.js';
+    
+        const emojiBtn = document.getElementById('emoji-btn');
+        const emojiIcon = document.getElementById('emoji-icon');
+        const emojiTooltip = document.querySelector('.emoji-tooltip');
+        const emojiPicker = document.querySelector('emoji-picker');
+        const chatInput = document.getElementById('chat-input');
+    
+        // Initialize popper for positioning
+        Popper.createPopper(emojiBtn, emojiTooltip);
+    
+        // Toggle emoji picker visibility
+        emojiBtn.addEventListener('click', () => {
+            emojiTooltip.classList.toggle('shown');
+        });
+    
+        // Change icon on hover and click
+        emojiBtn.addEventListener('mouseover', () => {
+            emojiIcon.src = "/static/img/icons/emojiButton_hover.svg";
+        });
+    
+        emojiBtn.addEventListener('mouseout', () => {
+            emojiIcon.src = "/static/img/icons/emojiButton.svg";
+        });
+    
+        emojiBtn.addEventListener('mousedown', () => {
+            emojiIcon.src = "/static/img/icons/emojiButton_onClick.svg";
+        });
+    
+        emojiBtn.addEventListener('mouseup', () => {
+            emojiIcon.src = "/static/img/icons/emojiButton_hover.svg"; // Revert to hover state on mouse up
+        });
+    
+        // Insert emoji into input on emoji selection
+        emojiPicker.addEventListener('emoji-click', (event) => {
+            insertText(chatInput, event.detail.unicode);
+        });
+    </script>
+    
+
+
+    <script>
+        // JavaScript for handling button icon changes
+        const sendBtn = document.getElementById("send-btn");
+        const sendIcon = document.getElementById("send-icon");        
+  
+        // Change icon on mouse events
+        sendBtn.addEventListener("mouseover", () => {            
+            sendIcon.src = "/static/img/icons/sendButtonIcon_hover.svg";
+        });
+
+        sendBtn.addEventListener("mouseout", () => {            
+            sendIcon.src = "/static/img/icons/sendButtonIcon.svg";
+        });
+
+        sendBtn.addEventListener("mousedown", () => {            
+            sendIcon.src = "/static/img/icons/sendButtonIcon_onClick.svg";
+        });
+
+        sendBtn.addEventListener("mouseup", () => {            
+            sendIcon.src = "/static/img/icons/sendButtonIcon_hover.svg"; // Return to hover on release
+        });
+    </script>    
 </body>
 
 </html>
