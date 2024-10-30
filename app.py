@@ -653,7 +653,7 @@ Here's how I might talk:
             "model_endpoint_type": "openai",
             "model_endpoint": "https://api.openai.com/v1",
             "context_window": 32000,
-            "put_inner_thoughts_in_kwargs": True
+            #"put_inner_thoughts_in_kwargs": True   # Check with devs to see if this is how to enable inner thoughts
         },
         "metadata_": {
             "persona": f"I am {persona_name.capitalize()}, a friendly human working in the Personal Assistant firm, JillAI.",
@@ -677,7 +677,7 @@ Here's how I might talk:
                 },
                 'persona': {
                     'value': persona_description,
-                    'limit': 4000,
+                    'limit': 2000,
                     'name': persona_name.capitalize(),
                     'label': 'persona'
                 }
