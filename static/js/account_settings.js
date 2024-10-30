@@ -47,6 +47,31 @@ document.addEventListener("DOMContentLoaded", function() {
     // Attach event listener to uiModeSelect to update the image on change
     const uiModeSelect = document.getElementById("uiModeSelect");
     uiModeSelect.addEventListener("change", updatePersonaImage);
+
+    // Get the current user's country from the template
+    const userCountry = "{{ current_user.Country|e }}";
+    console.log(userCountry);
+
+    // Load countries into the select element
+    fetch("static/json/countries_with_us.json")
+      .then(response => response.json())
+      .then(countries => {
+        const countrySelect = document.getElementById("countrySelect");
+        // Clear any previous options
+        countrySelect.innerHTML = '<option value="" disabled selected>Choose your country...</option>';
+        for (const [code, name] of Object.entries(countries)) {
+          const option = document.createElement("option");
+          option.value = code;
+          option.textContent = name;
+          // Set the selected attribute if the country matches the user's country
+          if (code === userCountry) {
+            option.selected = true;
+            console.log("Setting selected country:", name);
+          }
+          countrySelect.appendChild(option);
+        }
+      })
+      .catch(error => console.error("Error loading countries:", error));
 });
 
 // Function to show a toast notification
@@ -79,7 +104,6 @@ function showToast(message, type) {
     }
 }
 
-// Example AJAX request to update preferences and prevent page reload
 $(document).ready(function() {
     $("#accountSettingsForm").on("submit", function(event) {
         event.preventDefault(); // Prevent default form submission
@@ -91,6 +115,9 @@ $(document).ready(function() {
             currentPassword: document.getElementById("currentPassword").value,
             newPassword: document.getElementById("newPassword").value,
             zipCode: document.getElementById("zipCode").value,
+            country: document.getElementById("countrySelect").value,
+            state: document.getElementById("state").value,
+            city: document.getElementById("city").value,
             UImode: document.getElementById("uiModeSelect").value,
             CurrentPersona: document.getElementById("personaSelect").value
         };

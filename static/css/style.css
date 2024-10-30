@@ -1,20 +1,3 @@
-.chat-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.chat-box {
-  flex-grow: 1;
-  width: 100%;
-  min-height: 400px;
-  max-height: 400px;
-  overflow-y: auto;
-  background-color: #23232c;
-  padding: 10px;
-  border-radius: 10px;
-}
-
 .toast-container {
   position: relative; /* Change to relative for in-flow positioning */
   margin-top: 10px; /* Adjust this value to move it closer */
@@ -122,4 +105,577 @@
 .confirm-button:hover {
   background-color: #0b5ed7;
   border-color: #0a58ca;
+}
+
+.form-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-control {
+  width: 100%;
+  padding-right: 40px; /* Space for the icon */
+}
+
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+#passwordInput {
+  width: 100%;
+  padding-right: 40px; /* Adds space for the eye icon */
+}
+
+#togglePasswordBtn {
+  position: absolute;
+  top: 20%;
+  right: 15px;  
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+#togglePasswordBtn img {
+  width: 25px; /* Adjust to desired icon size */
+  height: 25px;
+}
+
+/* Password toggle button styling */
+.password-toggle {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.password-toggle:hover {
+  opacity: 1;
+}
+
+.password-toggle img {
+  width: 100%;
+  height: auto;
+}
+
+/* Password requirements box */
+.requirements-box {
+  width: 100%;
+  max-width: 300px;
+  background-color: #1f1f1f;
+  border: 2px solid #333;
+  border-radius: 10px;
+  padding: 15px;
+  color: #ff4d4d; /* Default color for unmet requirements */
+  font-size: 14px;
+  display: none; /* Hidden by default, shown on focus */
+  transition: opacity 0.3s ease-in-out;
+  margin-top: 8px;
+}
+
+/* Password requirements title */
+.requirements-box p {
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+/* Requirements list styling */
+.requirements-box ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.requirements-box ul li {
+  color: #ff4d4d; /* Default red for unmet */
+  padding-left: 10px;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Valid requirements turn green */
+.requirements-box ul li.valid {
+  color: #4CAF50; /* Green for met requirements */
+}
+
+.input-valid {
+  border-color: #19f5aa;
+  border: calc(0.8em + 0.6rem) calc(0.8em + 0.6rem);
+}
+
+#successMessage {
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #19f5aa;
+}
+
+.chat-window {
+  padding: 20px;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 15px; /* Matching the input box and chatbox */
+  overflow: hidden;
+}
+
+.chat-box {
+  border-radius: 15px 15px 0 0;
+  flex-grow: 1;
+  width: 100%;  
+  height: calc(100vh - 190px);
+  overflow-y: auto;
+  background-color: #3e3c4c;
+  padding: 10px;
+}
+
+#chat-input {
+  flex-grow: 1;
+  margin-top: -1px;
+  border-radius: 0 0 15px 15px;
+  width: 100%;
+  padding: 10px 60px 10px 100px;
+  background-color: #484658;
+  color: #d9e0e7;
+  border: none;
+  outline: none;
+}
+
+.input-container {
+  position: relative;
+  display: flex; /* Keeps input and button aligned horizontally */
+  padding: 0px;
+  background-color: #3e3c4c; /* Set the desired background color for input area */
+  border-radius: 0 0 15px 15px;
+}
+
+#send-btn {
+  position: absolute;  
+  right: 15px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transform: translateY(5px);
+  transition: transform 0.2s ease;
+}
+
+#send-icon {
+  position: relative;
+  z-index: 1;
+  width: 35px;
+  height: 35px;  
+}
+
+/* Create the glowing effect underneath */
+#send-btn::before {
+  content: "";
+  position: absolute;
+  top: 20%;
+  left: 80%;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.1);  
+  box-shadow:
+    inset 0 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -10px 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -30px 0 10px #8cface,
+    0 0 20px #8cface,
+    0 0 10px #8cface,
+    0 0 0 #8cface;
+  z-index: 0;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#send-btn:hover {  
+  transform: translateY(6px) scale(1.2);
+}
+
+#send-btn:active  {  
+  transform: translateY(6px) scale(0.9);
+}
+
+#send-btn:hover::before {
+  opacity: 1;
+  box-shadow:
+    inset 0 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -10px 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -30px 0 10px #8cface,
+    0 0 20px #8cface,
+    0 0 10px #8cface,
+    0 0 0 #8cface;
+  transform: translate(-50%, -50%) scale(0.5);
+}
+
+#send-btn:active::before {
+  opacity: 1;
+  box-shadow:
+    inset 0 0 10px #8ca9fa,
+    inset 10px 0 10px #8ca9fa,
+    inset -10px 0 10px #8ca9fa,
+    inset 10px 0 10px #8ca9fa,
+    inset -30px 0 10px #8ca9fa,
+    0 0 20px #8ca9fa,
+    0 0 10px #8ca9fa,
+    0 0 0 #8ca9fa;
+  transform: translate(-50%, -50%) scale(0.5);
+}
+
+/* Blur effect above the input container */
+.input-container::before {
+  content: "";
+  position: absolute;
+  top: -8px; /* Position the blur slightly above the input */
+  left: 0;
+  right: 0;
+  height: 20px; /* Height of the blur area */
+  background: linear-gradient(to bottom, rgba(60, 60, 90, 0.1), rgba(60, 60, 90, 0));
+  filter: blur(5px);
+  pointer-events: none; /* Ensure it doesn't interfere with input actions */
+}
+
+/* Attachment Button Styling */
+#attachment-btn {
+  position: absolute;  
+  left: 15px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;  
+  align-items: center;
+  transform: translateY(6px);
+  transition: transform 0.2s ease;
+}
+
+#attachment-icon {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Create the glowing effect underneath */
+#attachment-btn::before {
+  content: "";
+  position: absolute;
+  top: 54%;
+  left: 54%;
+  width: 81%;
+  height: 74%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.1);  
+  box-shadow:
+    inset 0 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -10px 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -30px 0 10px #8cface,
+    0 0 20px #8cface,
+    0 0 10px #8cface,
+    0 0 0 #8cface;
+  z-index: 0;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#attachment-btn:hover {  
+  transform: translateY(5px) translateX(-1) scale(1.1);
+}
+
+#attachment-btn:active {  
+  transform: translateY(5px) scale(0.9);
+}
+
+#attachment-btn:hover::before {
+  opacity: 1;
+  box-shadow:
+    inset 0 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -10px 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -30px 0 10px #8cface,
+    0 0 20px #8cface,
+    0 0 10px #8cface,
+    0 0 0 #8cface;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Click effect */
+#attachment-btn:active::before {
+  opacity: 1;
+  box-shadow:
+    inset 0 0 10px #8ca9fa,
+    inset 10px 0 10px #8ca9fa,
+    inset -10px 0 10px #8ca9fa,
+    inset 10px 0 10px #8ca9fa,
+    inset -30px 0 10px #8ca9fa,
+    0 0 20px #8ca9fa,
+    0 0 10px #8ca9fa,
+    0 0 0 #8ca9fa;
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted rgb(134, 142, 160); /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: rgb(66, 71, 83);
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+ 
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 2;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.emoji-tooltip:not(.shown) {
+  display: none;
+}
+
+#emoji-btn {
+  position: absolute;  
+  width: 35px;
+  height: 35px;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;  
+  left: 55px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+#emoji-btn img {
+  width: 100%;
+  height: 100%;
+  position: relative; /* Ensure the icon sits on top of the glow */
+  z-index: 1;
+}
+
+/* Create the glowing effect underneath */
+#emoji-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 49%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.1);  
+  box-shadow:
+    inset 0 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -10px 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -30px 0 10px #8cface,
+    0 0 20px #8cface,
+    0 0 10px #8cface,
+    0 0 0 #8cface;
+  z-index: 0;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#emoji-btn:hover {  
+  transform: translateY(-17px) scale(1.1);
+}
+
+#emoji-btn:active {  
+  transform: translateY(-17px) scale(0.9);
+}
+
+#emoji-btn:hover::before {
+  opacity: 1;
+  box-shadow:
+    inset 0 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -10px 0 10px #8cface,
+    inset 10px 0 10px #8cface,
+    inset -30px 0 10px #8cface,
+    0 0 20px #8cface,
+    0 0 10px #8cface,
+    0 0 0 #8cface;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+#emoji-btn:active::before {
+  opacity: 1;
+  box-shadow:
+    inset 0 0 10px #8ca9fa,
+    inset 10px 0 10px #8ca9fa,
+    inset -10px 0 10px #8ca9fa,
+    inset 10px 0 10px #8ca9fa,
+    inset -30px 0 10px #8ca9fa,
+    0 0 20px #8ca9fa,
+    0 0 10px #8ca9fa,
+    0 0 0 #8ca9fa;
+  transform: translate(-50%, -50%) scale(0.5);
+}
+
+
+/* General container for the whole message including avatar */
+.message-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+.server-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  margin-bottom: 25px;
+  margin-top: 25px;  
+}
+
+/* Avatar container with the image and name label */
+.avatar-container {
+  margin-right: 15px;
+  margin-left: 15px;
+  text-align: center;
+  align-self: flex-end;
+}
+
+/* Avatar image styling */
+.avatar-image {
+  outline: 3px solid #7cfdbd;  
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+}
+
+/* Name label above the avatar */
+.avatar-name {
+  font-family: 'Annie Use Your Telescope';
+  font-size: 28px;
+  color: #bac4da;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* Chat message bubble styling */
+.chat-message {
+  max-width: 60%;
+  padding: 10px;
+  color: #d9e0e7;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.timestamp {
+  font-size: 14px;
+  color: #bac4da;
+  margin-top: 2px;
+  margin-bottom: 52px;
+  align-self: flex-end; /* Align timestamp at the bottom of the message */
+  white-space: nowrap; /* Prevent line wrapping */
+}
+
+/* Styling for messages sent by the assistant (left-aligned) */
+.incoming-message {
+  background-color: #484658;
+  text-align: left;
+  float: left;
+  clear: both;
+  justify-content: flex-start;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 10px;
+}
+
+/* Styling for messages sent by the user (right-aligned) */
+.outgoing-message {
+  background-color: #4a5f70;
+  text-align: right;
+  float: right;
+  clear: both;
+  justify-content: flex-end;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 0px;
+}
+
+/* Styling for messages sent by the assistant (left-aligned) */
+.incoming-container { 
+  display: flex;
+  text-align: left;
+  float: left;
+  clear: both;
+  justify-content: flex-start;  
+}
+
+/* Styling for messages sent by the user (right-aligned) */
+.outgoing-container { 
+  display: flex;
+  text-align: right;
+  float: right;
+  clear: both;
+  justify-content: flex-end;
+}
+
+/* Target the scroll-bar in Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 12px; /* Adjust the width to fit your design */
+}
+
+::-webkit-scrollbar-track {
+  background: #2C2B37; /* Dark background to blend with the chat background */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #19f59c, #2f54cf); /* Gradient for a futuristic glow */
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(31, 245, 156, 0.6), 0 0 10px rgba(47, 84, 207, 0.6); /* Soft glow around the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2f54cf, #19f59c); /* Flip colors on hover for a dynamic effect */
+  box-shadow: 0 0 15px rgba(31, 245, 156, 0.8), 0 0 15px rgba(47, 84, 207, 0.8); /* Stronger glow on hover */
+}
+
+/* Firefox scrollbar customization */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: linear-gradient(180deg, #19f59c, #2f54cf) #2C2B37;
 }

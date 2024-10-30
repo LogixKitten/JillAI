@@ -11,14 +11,15 @@
     <noscript><link rel="stylesheet" href="/static/css/bootstrap.min.css"></noscript>
     <link rel="preload" href="/static/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="static/css/style.css"></noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Agbalumo&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Agbalumo">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 
 <body>
+
     <nav class="navbar navbar-expand-md sticky-top bg-dark py-3 navbar-dark" id="mainNav">
         <div class="container"><a class="navbar-brand d-flex align-items-center" href="/"><span class="bs-icon-md shadow-none d-flex justify-content-center align-items-center me-2 bs-icon"><img src="static/img/Logo.png" width="100" height="104"></span><span class="fw-bolder" style="font-family: 'Amatic SC', serif;font-weight: bold;font-size: 50px;">JillAI</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navcol-1">
@@ -34,6 +35,7 @@
             </div>
         </div>
     </nav>
+
     <div class="modal fade" role="dialog" tabindex="-1" id="modal-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -51,8 +53,8 @@
                 <div class="modal-body">
                     <p style="font-size: 15px;text-align: center;">Great to have you join JillAI! Account setup is a one time thing that will help us give you a seamless experience. It is only a handful of questions for you, so please be patient with us.</p>
                     <p style="text-align: center;">First thing we need, what name should we know you as?</p>
-                    <form><input class="form-control" type="text" style="position: relative;display: block;" id="firstNameInput" name="firstName" placeholder="First Name" required="">
-                        <hr style="opacity: 0;"><input class="form-control" type="text" placeholder="Last Name" name="lastName" required="">
+                    <form><input class="form-control" type="text" style="position: relative;display: block;" id="firstNameInput" name="firstName" placeholder="First Name" required>
+                        <hr style="opacity: 0;"><input class="form-control" type="text" placeholder="Last Name" name="lastName" required>
                     </form>
                     <div></div>
                 </div>
@@ -64,6 +66,7 @@
             </div>
         </div>
     </div>
+
     <div class="modal fade" role="dialog" tabindex="-1" id="modal-2" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -81,7 +84,9 @@
                 <div class="modal-body">
                     <p style="font-size: 15px;text-align: center;">Got it! Thanks <span class="replace-firstName"></span>!</p>
                     <p style="text-align: center;">Next we need to know your date of birth for our records. Don't worry, your data is secured and will never be shared!</p>
-                    <form><input class="form-control" type="date" required="" name="dateOfBirth"></form>
+                    <form>
+                        <input class="form-control" type="date" name="dateOfBirth" id="dateOfBirth" required>
+                    </form>
                     <div></div>
                 </div>
                 <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cancel</button>
@@ -124,7 +129,8 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>   
+
     <div class="modal fade" role="dialog" tabindex="-1" id="modal-4" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -140,15 +146,56 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <p style="font-size: 15px;text-align: center;">Good to know <span class="replace-firstName"></span>.</p>
-                    <p style="text-align: center;">In order to enable your assistant to give you accurate weather updates, we will need to know what zip code you would like your home forecast to be. Please provide us with your preferred 5-digit zip code.</p>
-                    <form><input class="form-control" type="text" required="" placeholder="Zip Code" name="zipCode" minlength="5" maxlength="5" pattern="\d{5}"></form>
-                    <div></div>
+                    <div class="modal-4-text-countryRadio" style="display: grid;">
+                        <p style="text-align:center">Good to know <span class="replace-firstName"></span></p>
+                        <p style="text-align:center">Now to setup your timezone and get accurate weather forecasts for you,</p>
+                        <p style="text-align:center">what country are you currently in?</p>
+                    </div>
+
+                    <div class="modal-4-text-USA" style="display: none;">
+                        <p style="text-align:center">Got it! Thanks <span class="replace-firstName"></span>!</p>
+                        <p style="text-align:center">In that case all we need is your zip code.</p>                        
+                    </div>
+
+                    <div class="modal-4-text-Other" style="display: none;">
+                        <p style="text-align:center">Thank you for that information, <span class="replace-firstName"></span>!</p>
+                        <p style="text-align:center">We need just a few details to get things</p>
+                        <p style="text-align:center">up and working correctly.</p>
+                    </div>
+
+                    <div class="location-choice" style="display: block;">
+                        <hr>
+                        <div class="modal-4-radioContainer" style="display: grid; place-items: center;">
+                            <label class="form-check-label" for="USACheck">USA</label>
+                            <input class="form-check-input" type="radio" id="USACheck" name="countryRadio" value="US">
+                            <hr>
+                            <label class="form-check-label" for="ElseCheck">Somewhere Else</label>
+                            <input class="form-check-input" type="radio" id="ElseCheck" name="countryRadio" value="Other">
+                        </div>                        
+                        <hr>
+                        <div style="display: flex; justify-content: space-between;">
+                            <button class="btn btn-light" type="button" data-bs-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary" type="button" id="confirmCountryCheck" style="display: none;">Next</button>
+                        </div>
+                    </div>
+
+                    <div class="usa-location-form" id="usaLocationForm" style="display: none;">
+                        <p>Please enter your 5-digit Zip Code:</p>
+                        <input class="form-control" type="text" id="zipCode" placeholder="Zip Code" name="zipCode" minlength="5" maxlength="5" pattern="\d{5}">
+                    </div>
+                    <div class="international-location-form" id="internationalLocationForm" style="display: none;">
+                        <p>Please fill-out the following:</p>
+                        <select class="form-control" name="country" id="countrySelect">
+                            <option value="" disabled selected>Choose your country...</option>
+                            <!-- Populate dynamically with country options -->
+                        </select>
+                        <input class="form-control mt-2" type="text" id="state" placeholder="State/Province/Region">
+                        <input class="form-control mt-2" type="text" id="city" placeholder="City">
+                    </div>
                 </div>
-                <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cancel</button>
-                    <div class="col">
-                        <div></div>
-                    </div><button class="btn btn-primary" type="button" id="submitFormButton">Next</button>
+                <div class="modal-footer" id="modal-4-footer" style="display: none; justify-content: space-between;">
+                    <button class="btn btn-light" type="button" data-bs-dismiss="modal" style="display: flex; justify-content: flex-start;">Cancel</button>
+                    <button class="btn btn-primary" type="button" id="submitFormButton" style="display: flex; justify-content: flex-end;">Next</button>
                 </div>
             </div>
         </div>
@@ -199,7 +246,26 @@
                                     <div class="invalid-feedback">This username is already taken.</div>
                                     <div class="valid-feedback">Username is available!</div>
                                 </div>
-                                <div class="mb-3"><input class="form-control" type="password" name="password" placeholder="Password" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&amp;])[A-Za-z\d@$!%*?&amp;]{8,}"></div>
+                                <div class="form-group" style="display: block;">
+                                    <div style="display: grid; position: relative; align-items: center;">
+                                        <input class="form-control" type="password" placeholder="Password" id="passwordInput" name="password" style="display: grid;" onfocus="showRequirements()" onblur="hideRequirements()" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&amp;])[A-Za-z\d@$!%*?&amp;]{8,}">
+                                        <button type="button" onclick="togglePassword()" id="togglePasswordBtn">
+                                            <img src="static/img/icons/eye-password-hide.svg" alt="Show Password" id="passwordIcon">
+                                        </button>
+                                        <div class="valid-feedback" id="passwordSuccessMessage" style="display: none;">Password requirements met!</div>
+                                    </div>                                    
+                                </div>
+                                <div id="passwordRequirements" class="requirements-box">
+                                    <p>Password requirements:</p>
+                                    <ul>
+                                        <li id="minLength">At least 8 characters</li>
+                                        <li id="uppercase">One uppercase letter</li>
+                                        <li id="lowercase">One lowercase letter</li>
+                                        <li id="number">One number</li>
+                                        <li id="specialChar">One special character</li>
+                                    </ul>
+                                </div>
+                                <br>
                                 <div class="mb-3"><button class="btn btn-primary shadow d-block w-100" type="button" data-bs-target="#modal-1" data-bs-toggle="modal">Sign up</button></div>
                                 <p class="text-muted">Already have an account?&nbsp;<a href="{{ url_for('login') }}">Log in</a></p>
                             </form>
@@ -219,9 +285,9 @@
     </footer>
     <script src="static/js/bootstrap.min.js"></script>
     <script src="static/js/bold-and-dark.js"></script>
-    <script defer src="static/js/toast.js"></script>
-    <script defer src="static/js/validation.js"></script>
+    <script defer src="static/js/toast.js"></script>    
     <script defer src="static/js/reg_modalcontrol.js"></script>
+    <script defer src="static/js/validation.js"></script>
 </body>
 
 </html>
