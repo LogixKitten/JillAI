@@ -684,9 +684,7 @@ Here's how I might talk:
             },
             "prompt_template": ""
         },
-        "tools": [
-            "core_memory_append",
-            "core_memory_replace",
+        "tools": [            
             "conversation_search",
             "conversation_search_date",
             "send_message",
