@@ -128,8 +128,6 @@ class User(UserMixin):
         }
     
 
-
-
 # SQL Database configuration
 db_config = {
     'host': os.getenv('DB_HOST', 'localhost'),

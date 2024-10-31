@@ -204,6 +204,8 @@ socket.on('message', function(data) {
 
     // Scroll to the bottom of the chat box to keep the latest message in view
     chatBox.scrollTop = chatBox.scrollHeight;
+
+    showTypingIndicator();
 });
 
 
@@ -282,15 +284,57 @@ function sendMessage() {
 }
 
 // Send message when the Send button is clicked
-document.getElementById('send-btn').addEventListener('click', sendMessage);
+document.getElementById('send-btn').addEventListener('click', function() {
+    showTypingIndicator();
+    sendMessage();    
+});
 
 // Send message when Enter is pressed
 document.getElementById('chat-input').addEventListener('keydown', function(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();  // Prevent default Enter behavior
+        event.preventDefault(); // Prevent the default behavior
+        showTypingIndicator();
         sendMessage();
     }
 });
+
+
+// Function to create and show the typing indicator
+function showTypingIndicator() {
+    const chatBox = document.getElementById("chat-box");
+    // Check if the indicator already exists to avoid duplicates
+    if (!document.getElementById("typingNoticeContainer")) {
+        const typingNoticeContainer = document.createElement("div");
+        typingNoticeContainer.id = "typingNoticeContainer";
+        typingNoticeContainer.classList.add("typing-notice"); // Add a class for styling
+
+        const personaName = CurrentUser["CurrentPersona"];
+        const capitalizedPersonaName = personaName.charAt(0).toUpperCase() + personaName.slice(1);
+        
+        // Set up the inner HTML with the typing message
+        typingNoticeContainer.innerHTML = `<p class="typing-text">${capitalizedPersonaName} is typing<span class="dots">...</span></p>`;
+        
+        // Append to the chat box
+        chatBox.appendChild(typingNoticeContainer);
+
+        // Scroll to the bottom of the chat box to keep the latest message in view
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
+
+// Function to hide and remove the typing indicator
+function hideTypingIndicator() {
+    console.log("Hiding fucntion called"); 
+    const typingNoticeContainer = document.getElementById("typingNoticeContainer");
+    if (typingNoticeContainer) {
+        console.log("Typing indicator found and removed");
+        typingNoticeContainer.style.display = "none"; // Hide it from view
+        typingNoticeContainer.remove(); // Also remove it from the DOM to allow recreation
+    }
+    else {
+        console.log("Typing indicator not found");
+    }
+}
 
 
 ///////////////-------- HANDLE AGENT MESSAGES --------//////////////////////////
@@ -299,6 +343,8 @@ let accumulatedMessage = ""; // To accumulate the full message text
 
 socket.on('streamed_message', function(data) {
     let { message, persona } = data;    
+
+    hideTypingIndicator(); // Hide the typing indicator when the agent sends a message
 
     // Get the chat box container
     const chatBox = document.getElementById('chat-box');

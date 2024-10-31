@@ -219,6 +219,11 @@ function hideRequirements() {
 
 // Submit form data and create account
 document.getElementById('submitFormButton').addEventListener('click', function() {
+  $('#modal-4').modal('hide');
+  $('#loadingModal').modal('show');
+    // Optional: disable submit button to prevent repeated clicks
+    this.disabled = true;
+  
   const country_check = document.querySelector('input[name="countryRadio"]:checked').value;
 
   // Collect common form data
@@ -269,6 +274,7 @@ document.getElementById('submitFormButton').addEventListener('click', function()
   .then(response => response.json())
   .then(data => {
     if (data.success) {
+        $('#loadingModal').modal('hide');
         if (data.first_login) {
             sessionStorage.setItem('showFirstLoginModal', 'true');
         }
