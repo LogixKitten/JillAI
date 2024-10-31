@@ -48,24 +48,19 @@ document.addEventListener("DOMContentLoaded", function() {
     const uiModeSelect = document.getElementById("uiModeSelect");
     uiModeSelect.addEventListener("change", updatePersonaImage);
 
-    // Get the current user's country from the template
-    const userCountry = "{{ current_user.Country|e }}";
-    console.log(userCountry);
+    
 
     // Load countries into the select element
     fetch("static/json/countries_with_us.json")
       .then(response => response.json())
       .then(countries => {
-        const countrySelect = document.getElementById("countrySelect");
-        // Clear any previous options
-        countrySelect.innerHTML = '<option value="" disabled selected>Choose your country...</option>';
+        const countrySelect = document.getElementById("countrySelect");        
         for (const [code, name] of Object.entries(countries)) {
           const option = document.createElement("option");
           option.value = code;
           option.textContent = name;
-          // Set the selected attribute if the country matches the user's country
-          if (code === userCountry) {
-            option.selected = true;
+          if (code === userCountry) { 
+            option.selected = true;  // Set the selected attribute if the country matches the user's country
             console.log("Setting selected country:", name);
           }
           countrySelect.appendChild(option);
@@ -101,12 +96,18 @@ function showToast(message, type) {
         // Trigger the toast to display
         const toast = new bootstrap.Toast(toastElement, { autohide: true, delay: 5000 });
         toast.show();
+
+        // Listen for the hidden event to reset display to "none"
+        toastElement.addEventListener("hidden.bs.toast", function () {
+            toastElement.style.display = "none";
+        });
     }
 }
 
 $(document).ready(function() {
     $("#accountSettingsForm").on("submit", function(event) {
         event.preventDefault(); // Prevent default form submission
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         
         const formData = {
             firstName: document.getElementById("firstName").value,
