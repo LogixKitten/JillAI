@@ -11,8 +11,6 @@ let previousDate = null; // To keep track of the previous message date
 
 ///////////////-------- HANDLE CHAT HISTORY --------//////////////////////////
 socket.on('load_chat_history', function(data) {
-    console.log('Chat history received:', data);
-
     if (data.length === 0) {
         const currentDate = new Date().toISOString();
         const localTimeString = convertUTCToLocalDate(currentDate);
@@ -285,16 +283,16 @@ function sendMessage() {
 
 // Send message when the Send button is clicked
 document.getElementById('send-btn').addEventListener('click', function() {
+    sendMessage();
     showTypingIndicator();
-    sendMessage();    
 });
 
 // Send message when Enter is pressed
 document.getElementById('chat-input').addEventListener('keydown', function(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault(); // Prevent the default behavior
-        showTypingIndicator();
+        event.preventDefault(); // Prevent the default behavior        
         sendMessage();
+        showTypingIndicator();
     }
 });
 
@@ -323,17 +321,13 @@ function showTypingIndicator() {
 }
 
 // Function to hide and remove the typing indicator
-function hideTypingIndicator() {
-    console.log("Hiding fucntion called"); 
+function hideTypingIndicator() {    
     const typingNoticeContainer = document.getElementById("typingNoticeContainer");
     if (typingNoticeContainer) {
-        console.log("Typing indicator found and removed");
+        
         typingNoticeContainer.style.display = "none"; // Hide it from view
         typingNoticeContainer.remove(); // Also remove it from the DOM to allow recreation
-    }
-    else {
-        console.log("Typing indicator not found");
-    }
+    }    
 }
 
 
