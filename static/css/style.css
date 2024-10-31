@@ -115,6 +115,7 @@
 }
 
 .typing-notice {
+  margin-top: 115px;
   font-style: italic;
   color: #888;
   padding: 5px;
@@ -677,31 +678,4 @@
   float: right;
   clear: both;
   justify-content: flex-end;
-}
-
-/* Target the scroll-bar in Webkit browsers (Chrome, Safari, Edge) */
-::-webkit-scrollbar {
-  width: 12px; /* Adjust the width to fit your design */
-}
-
-::-webkit-scrollbar-track {
-  background: #2C2B37; /* Dark background to blend with the chat background */
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #19f59c, #2f54cf); /* Gradient for a futuristic glow */
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(31, 245, 156, 0.6), 0 0 10px rgba(47, 84, 207, 0.6); /* Soft glow around the thumb */
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #2f54cf, #19f59c); /* Flip colors on hover for a dynamic effect */
-  box-shadow: 0 0 15px rgba(31, 245, 156, 0.8), 0 0 15px rgba(47, 84, 207, 0.8); /* Stronger glow on hover */
-}
-
-/* Firefox scrollbar customization */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: linear-gradient(180deg, #19f59c, #2f54cf) #2C2B37;
 }
