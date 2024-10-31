@@ -110,8 +110,7 @@
                                     <h4 class="fw-bold">Country</h4>
                                 </div>
                                 <div style="margin-bottom: 16px;">
-                                    <select class="form-control" name="country" id="countrySelect">
-                                        <option value="" disabled selected>Choose your country...</option>
+                                    <select class="form-control" name="country" id="countrySelect">                                        
                                         <!-- Populate dynamically with country options -->
                                     </select>
                                 </div>
@@ -220,9 +219,46 @@
     </footer>
     <!-- jQuery CDN (latest version 3.x) -->
     <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Get the current user's country from the template
+        const userCountry = "{{ current_user.Country | e }}";
+    </script>
+
     <script src="static/js/bootstrap.min.js"></script>
     <script src="static/js/bold-and-dark.js"></script>
     <script defer src="static/js/account_settings.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const countrySelect = document.getElementById("countrySelect");
+            const usAddressContainer = document.getElementById("USAddressContainer");
+            const internationalAddressContainer = document.getElementById("InternationalAddressContainer");
+
+            // Function to toggle address containers based on country selection
+            function toggleAddressContainers() {
+                if (countrySelect.value === "US") {
+                    usAddressContainer.style.display = "block";
+                    internationalAddressContainer.style.display = "none";
+                } else {
+                    usAddressContainer.style.display = "none";
+                    internationalAddressContainer.style.display = "block";
+                }
+            }
+
+            if (userCountry === "US") {
+                usAddressContainer.style.display = "block";
+                internationalAddressContainer.style.display = "none";
+            } else {
+                usAddressContainer.style.display = "none";
+                internationalAddressContainer.style.display = "block";
+            }
+            
+
+            // Add event listener to detect changes in the country select dropdown
+            countrySelect.addEventListener("change", toggleAddressContainers);
+        });
+    </script>
 </body>
 
 </html>
