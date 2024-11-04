@@ -17,6 +17,7 @@ from urllib.request import urlopen
 import json
 from pymongo import MongoClient
 import tiktoken
+import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -1079,6 +1080,7 @@ def register():
         if "zipCode" in data:
             geocode_url = f"https://geocode.maps.co/reverse?lat={latitude}&lon={longitude}&api_key={os.environ.get("GEOCODE_API_KEY")}"
             try:
+                time.sleep(1.1)
                 geocode_response = requests.get(geocode_url).json()
                 print("JSON Response: ", geocode_response)
 
