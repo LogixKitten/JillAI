@@ -15,8 +15,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Agbalumo">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope">
-    <!-- jQuery CDN (latest version 3.x) -->
+    <!-- jQuery CDN -->
     <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 
 <body>
@@ -82,13 +83,17 @@
 
     <script>
         const CurrentUser = JSON.parse('{{ jsonuser | tojson | safe }}');
-        const userRoom = "{{ room | e }}";
+        const userRoom = "{{ room | e }}";        
     </script>
 
     <script src="static/js/bootstrap.min.js"></script>
     <script src="static/js/bold-and-dark.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+    <script>
+        const md = window.markdownit();
+    </script>
     <script src="static/js/chat.js"></script>
 
     <script type="module">
@@ -132,8 +137,6 @@
         });
     </script>
     
-
-
     <script>
         // JavaScript for handling button icon changes
         const sendBtn = document.getElementById("send-btn");

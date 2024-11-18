@@ -71,8 +71,7 @@ socket.on('load_chat_history', function(data) {
                     'outgoing-container'
                 );
             }
-
-            // Add persona and avatar for agent messages
+            
             if (entry.sender == 'Agent') {
                 avatarContainer.classList.add('avatar-container');                
                 avatarImage.classList.add('avatar-image');
@@ -94,7 +93,7 @@ socket.on('load_chat_history', function(data) {
 
                 // Add the message text
                 message.classList.add('message-text');
-                message.innerHTML = `${entry.message}`;
+                message.innerHTML = md.render(entry.message);
 
                 // Append message text and avatar container
                 messageContainer.appendChild(avatarContainer);
@@ -124,7 +123,7 @@ socket.on('load_chat_history', function(data) {
 
                 // Add the message text
                 message.classList.add('message-text');
-                message.innerHTML = `${entry.message}`;
+                message.innerHTML = md.render(entry.message);
 
                 // Append message text and avatar container
                 messageContainer.appendChild(timestamp);
@@ -403,8 +402,8 @@ socket.on('streamed_message', function(data) {
     // Append the chunk to the accumulated message
     accumulatedMessage += message;
 
-    // Update the current message element with the accumulated text
-    currentMessageElement.textContent = accumulatedMessage;    
+    // Parse the accumulated message as Markdown and update the chat bubble's inner HTML
+    currentMessageElement.innerHTML = md.render(accumulatedMessage);
 
     // Scroll to the bottom of the chat box to keep the latest message in view
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -413,9 +412,11 @@ socket.on('streamed_message', function(data) {
 // Listen for the final message to update it with the clean version
 socket.on('final_message', function(finalData) {
     if (finalData && finalData.message && currentMessageElement) {
-        currentMessageElement.textContent = finalData.message;
+
+        // Parse the final message as Markdown and update the chat bubble
+        currentMessageElement.innerHTML = md.render(finalData.message);
         
-        // Finalize the message element (you can apply any final styling if needed)
+        // Finalize the message element
         currentMessageElement = null;  // Nullify the reference for the next message
         accumulatedMessage = "";       // Reset accumulated message for the next response
     }
