@@ -647,6 +647,32 @@
   border-top-right-radius: 10px;
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 10px;
+  white-space: pre-wrap; /* Allows line breaks to be respected */
+  word-break: break-word; /* Breaks long text within bubbles */
+}
+
+/* Style for code blocks within incoming messages */
+.incoming-message pre, .incoming-message code {
+  background-color: #33334a;
+  border-radius: 5px;
+  padding: 10px;
+  overflow-x: auto;
+  font-family: monospace;
+  color: #d6d6d6;
+  white-space: pre-wrap;  /* Wrap lines in code blocks and respect line breaks */
+  margin: 10px 0;
+  max-width: 100%;
+}
+
+/* Style for bold and italic text */
+.incoming-message strong {
+  font-weight: bold;
+  color: #7cfdbd; /* Green color for emphasis */
+}
+
+.incoming-message em {
+  font-style: italic;
+  color: #e7e7e7; /* Light gray color for subtle emphasis */
 }
 
 /* Styling for messages sent by the user (right-aligned) */
@@ -663,12 +689,9 @@
 }
 
 /* Styling for messages sent by the assistant (left-aligned) */
-.incoming-container { 
-  display: flex;
-  text-align: left;
-  float: left;
-  clear: both;
-  justify-content: flex-start;  
+.incoming-container {   
+  text-align: left;  
+  clear: both;  
 }
 
 /* Styling for messages sent by the user (right-aligned) */

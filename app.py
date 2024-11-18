@@ -64,11 +64,11 @@ google = oauth.register(
 # Conditionally apply eventlet only in production
 if os.environ.get("FLASK_ENV") == "production":
     socketio = SocketIO(app, async_mode="eventlet")
-    letta_url = "http://localhost:8083"
+    letta_url = "http://localhost:8283"
 else:
     # Use default Flask development server in dev mode
     socketio = SocketIO(app, ping_interval=10, ping_timeout=5, async_mode="threading")
-    letta_url = f"http://{os.getenv('DB_HOST')}:8083"
+    letta_url = f"http://{os.getenv('DB_HOST')}:8283"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -723,12 +723,12 @@ def send_letta_server_message(user_id, agent_name, message, roomid):
                 "text": message
             }
         ],        
-        "stream_steps": True,
-        "stream_tokens": True
+        "stream_steps": False,
+        "stream_tokens": False
     }
 
     # Send the message to the agent
-    response = requests.post(message_endpoint, headers=headers, json=payload, stream=True)
+    response = requests.post(message_endpoint, headers=headers, json=payload, stream=False)
 
     # Retrieve the agent name from the unique parameter agent_name
     def get_sender_name(name):
@@ -751,82 +751,64 @@ def send_letta_server_message(user_id, agent_name, message, roomid):
         }
         return AgentRealName.get(name, "Agent")
 
-    if response.status_code == 200: # Success        
+    if response.status_code == 200:  # Success        
         try:
-            response_list = []  # List to accumulate the parsed JSON objects
-            full_message = ""  # Accumulate all message chunks
-            raw_message_json = ""  # Accumulate all raw message JSON
-            total_tokens = 0  # Total tokens counted in the response 
-            is_first_chunk = True  # Flag to handle the first chunk of the response         
+            # Parse the full LettaResponse message
+            let_response = json.loads(response.text)  # Assuming response.text is the full response JSON
+            messages = let_response.get("messages", [])  # Access the list of messages
+            usage_stats = let_response.get("usage", {})  # Access usage statistics
 
-            # Iterate through the response stream
-            for line in response.iter_lines(decode_unicode=True):
-                if line.startswith("data:"):
-                    line = line[len("data:"):].strip()
-                    
-                    if line not in ("[DONE]", "[DONE_GEN]", "[DONE_STEP]"):  # Strip out flags for "DONE" messages
-                        try:                            
-                            chunk = json.loads(line)  # Parse the JSON chunk
-                            response_list.append(chunk)  # Append the parsed JSON to the list                         
-                            
-                            # Check if this chunk is part of the "function_call"
-                            if chunk.get("message_type") == "function_call":
-                                function_call = chunk.get("function_call", {})  # Extract the function_call object
-                                arguments = function_call.get("arguments", "")  # Extract the arguments from the function_call
+            # Retrieve total tokens from the usage statistics
+            total_tokens = usage_stats.get("total_tokens", 0)  # Get token count from usage stats
 
-                                 # Accumulate raw JSON chunks for final processing
-                                raw_message_json += arguments
-                                total_tokens += 1 # Increment the token count
+            # Pseudo-streaming function to simulate typing effect
+            def pseudo_stream_message(message_content, delay=0.02):
+                for chunk in message_content:
+                    emit('streamed_message', {
+                        'message': chunk,
+                        'persona': get_sender_name(agent_name)
+                    }, room=roomid)
+                    time.sleep(delay)  # Delay to simulate typing effect
 
-                                # Handle the first chunk by trimming the prefix
-                                if is_first_chunk and arguments and arguments != "None":
-                                    arguments = arguments.replace('{"message":"', '', 1)  # Strip out the prefix
-                                    is_first_chunk = False  # Update the flag                                
-                                
-                                # Ensure arguments is not "None" or an empty string
-                                if arguments and arguments != "None":
-                                    # Accumulate arguments into the full message
-                                    full_message += arguments
-                                    
-                                    # Emit the message to the front-end in real-time via WebSocket
-                                    emit('streamed_message', {
-                                        'message': arguments,
-                                        'persona': get_sender_name(agent_name)
-                                    }, room=roomid)                                                   
+            # Process each message in the response
+            for message in messages:
+                message_type = message.get("message_type") if isinstance(message, dict) else None
+                
+                # Focus on `function_call` messages to get user-facing content
+                if message_type == "function_call":
+                    arguments = message.get("function_call", {}).get("arguments", "")                    
+                    try:
+                        # Parse arguments to extract actual message content
+                        arguments_json = json.loads(arguments)                        
 
-                        except json.JSONDecodeError as e:
-                            print(f"Error decoding JSON chunk: {e}")
+                        function_message = arguments_json.get("message", "")
+                        print("function_message: ")
+                        print(function_message)
+                        
+                        # Simulate typing for the extracted message content
+                        pseudo_stream_message(function_message)
+                    except json.JSONDecodeError as e:
+                        print(f"Error decoding function_call arguments: {e}")
 
-            # Emit a final message with done flag
+            # Emit a final message with the done flag
             emit('streamed_message', {
                 'message': '',
                 'persona': get_sender_name(agent_name),
                 'done': True
             }, room=roomid)
 
-            # Clean up backslashes before saving to MongoDB
-            cleaned_message = full_message.replace(r'\\', '')
-
-            # Process the full JSON message after streaming completes
-            final_message = ""
-            try:
-                final_json = json.loads(raw_message_json)
-                final_message = final_json.get("message", "")                
-            except json.JSONDecodeError as e:
-                print(f"Error decoding full JSON: {e}")
-                # Fallback to the cleaned version if parsing fails
-                final_message = cleaned_message.rstrip('"}')
-
-            # Final saving to MongoDB after streaming completes and emit formatted message to the front-end
-            if final_message:
-                emit('final_message', {
-                    'message': final_message,
-                    'persona': get_sender_name(agent_name),
-                }, room=roomid)
-                save_chat_message(user_id, "Agent", get_sender_name(agent_name), final_message, tokens_used=int(total_tokens))
+            # Emit final, full message and save to MongoDB
+            final_message = "".join([json.loads(msg.get("function_call", {}).get("arguments", "")).get("message", "") for msg in messages if msg.get("message_type") == "function_call"])
+            emit('final_message', {
+                'message': final_message,
+                'persona': get_sender_name(agent_name),
+            }, room=roomid)
+            
+            save_chat_message(user_id, "Agent", get_sender_name(agent_name), final_message, tokens_used=int(total_tokens))
 
         except Exception as e:
             print(f"Streaming Error: {e}")
+
     else:
         print(f"Request failed with status code: {response.status_code}")
 
@@ -858,12 +840,12 @@ def send_letta_message(user_id, current_user, agent_name, message, roomid):
                 "text": message
             }
         ],        
-        "stream_steps": True,
-        "stream_tokens": True
+        "stream_steps": False,
+        "stream_tokens": False
     }
 
     # Send the message to the agent
-    response = requests.post(message_endpoint, headers=headers, json=payload, stream=True)
+    response = requests.post(message_endpoint, headers=headers, json=payload, stream=False)
 
     # Retrieve the agent name from the unique parameter agent_name
     def get_sender_name(name):
@@ -886,82 +868,63 @@ def send_letta_message(user_id, current_user, agent_name, message, roomid):
         }
         return AgentRealName.get(name, "Agent")
 
-    if response.status_code == 200: # Success        
+    if response.status_code == 200:  # Success        
         try:
-            response_list = []  # List to accumulate the parsed JSON objects
-            full_message = ""  # Accumulate all message chunks
-            raw_message_json = ""  # Accumulate all raw message JSON
-            total_tokens = 0  # count of tokens used   
-            is_first_chunk = True  # Flag to handle the first chunk of the response         
+            # Parse the full LettaResponse message
+            let_response = json.loads(response.text)  # Assuming response.text is the full response JSON
+            messages = let_response.get("messages", [])  # Access the list of messages
+            usage_stats = let_response.get("usage", {})  # Access usage statistics
 
-            # Iterate through the response stream
-            for line in response.iter_lines(decode_unicode=True):
-                if line.startswith("data:"):
-                    line = line[len("data:"):].strip()
-                    
-                    if line not in ("[DONE]", "[DONE_GEN]", "[DONE_STEP]"):  # Strip out flags for "DONE" messages
-                        try:                            
-                            chunk = json.loads(line)  # Parse the JSON chunk
-                            response_list.append(chunk)  # Append the parsed JSON to the list                         
-                            
-                            # Check if this chunk is part of the "function_call"
-                            if chunk.get("message_type") == "function_call":
-                                function_call = chunk.get("function_call", {})  # Extract the function_call object
-                                arguments = function_call.get("arguments", "")  # Extract the arguments from the function_call
+            # Retrieve total tokens from the usage statistics
+            total_tokens = usage_stats.get("total_tokens", 0)  # Get token count from usage stats
 
-                                 # Accumulate raw JSON chunks for final processing
-                                raw_message_json += arguments
-                                total_tokens += 1  # Increment the token count
+            # Pseudo-streaming function to simulate typing effect
+            def pseudo_stream_message(message_content, delay=0.02):
+                for chunk in message_content:
+                    emit('streamed_message', {
+                        'message': chunk,
+                        'persona': get_sender_name(agent_name)
+                    }, room=roomid)
+                    time.sleep(delay)  # Delay to simulate typing effect
 
-                                # Handle the first chunk by trimming the prefix
-                                if is_first_chunk and arguments and arguments != "None":
-                                    arguments = arguments.replace('{"message":"', '', 1)  # Strip out the prefix
-                                    is_first_chunk = False  # Update the flag                                
-                                
-                                # Ensure arguments is not "None" or an empty string
-                                if arguments and arguments != "None":
-                                    # Accumulate arguments into the full message
-                                    full_message += arguments
-                                    
-                                    # Emit the message to the front-end in real-time via WebSocket
-                                    emit('streamed_message', {
-                                        'message': arguments,
-                                        'persona': get_sender_name(agent_name)
-                                    }, room=roomid)                                                 
+            # Process each message in the response
+            for message in messages:
+                message_type = message.get("message_type") if isinstance(message, dict) else None
+                
+                # Focus on `function_call` messages to get user-facing content
+                if message_type == "function_call":
+                    arguments = message.get("function_call", {}).get("arguments", "")                    
+                    try:
+                        # Parse arguments to extract actual message content
+                        arguments_json = json.loads(arguments)                        
 
-                        except json.JSONDecodeError as e:
-                            print(f"Error decoding JSON chunk: {e}")
+                        function_message = arguments_json.get("message", "")
+                        print("function_message: ")
+                        print(function_message)
+                        
+                        # Simulate typing for the extracted message content
+                        pseudo_stream_message(function_message)
+                    except json.JSONDecodeError as e:
+                        print(f"Error decoding function_call arguments: {e}")
 
-            # Emit a final message with done flag
+            # Emit a final message with the done flag
             emit('streamed_message', {
                 'message': '',
                 'persona': get_sender_name(agent_name),
                 'done': True
             }, room=roomid)
 
-            # Clean up backslashes before saving to MongoDB
-            cleaned_message = full_message.replace(r'\\', '')
-
-            # Process the full JSON message after streaming completes
-            final_message = ""
-            try:
-                final_json = json.loads(raw_message_json)
-                final_message = final_json.get("message", "")                
-            except json.JSONDecodeError as e:
-                print(f"Error decoding full JSON: {e}")
-                # Fallback to the cleaned version if parsing fails
-                final_message = cleaned_message.rstrip('"}')
-
-            # Final saving to MongoDB after streaming completes and emit formatted message to the front-end
-            if final_message:
-                emit('final_message', {
-                    'message': final_message,
-                    'persona': get_sender_name(agent_name),
-                }, room=roomid)
-                save_chat_message(user_id, "Agent", get_sender_name(agent_name), final_message, tokens_used=int(total_tokens))
+            # Emit final, full message and save to MongoDB
+            final_message = "".join([json.loads(msg.get("function_call", {}).get("arguments", "")).get("message", "") for msg in messages if msg.get("message_type") == "function_call"])
+            emit('final_message', {
+                'message': final_message,
+                'persona': get_sender_name(agent_name),
+            }, room=roomid)
+            
+            save_chat_message(user_id, "Agent", get_sender_name(agent_name), final_message, tokens_used=int(total_tokens))
 
         except Exception as e:
-            print(f"Streaming Error: {e}")       
+            print(f"Streaming Error: {e}")
     else:
         print(f"Request failed with status code: {response.status_code}")
 
@@ -979,6 +942,18 @@ def delete_letta_agent(agent_id):
     else:
         print(f"Failed to delete agent. Status code: {response.status_code}")
         print(f"Response: {response.text}")
+
+
+def revoke_google_permissions(token):
+    response = requests.post(
+        'https://oauth2.googleapis.com/revoke',
+        params={'token': token},
+        headers={'content-type': 'application/x-www-form-urlencoded'}
+    )
+    if response.status_code == 200:
+        print("Google permissions revoked successfully.")
+    else:
+        print("Failed to revoke Google permissions.", response.json())
 
 
 @app.route('/')
@@ -1516,11 +1491,15 @@ def delete_account():
         logout_user()
 
         # Clear Flask Session Data
-        session.clear()
+        session.clear()        
 
         # Establish a database connection
         connection = get_db_connection()
         cursor = connection.cursor()
+
+        # Fetch the current token and revoke Google permissions
+        current_token = cursor.execute("SELECT TokenID FROM Token WHERE user_id = %s", (temp_user_id,))
+        revoke_google_permissions(current_token) # Revoke Google permissions
 
         # Delete the user entry from the Users table (cascade delete will handle related tables)
         cursor.execute("DELETE FROM Users WHERE user_id = %s", (temp_user_id,))
