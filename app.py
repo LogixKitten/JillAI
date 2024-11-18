@@ -18,6 +18,7 @@ import json
 from pymongo import MongoClient
 import tiktoken
 import time
+import urllib.parse
 
 # Load environment variables from .env file
 load_dotenv()
@@ -36,6 +37,8 @@ bcrypt = Bcrypt(app)
 
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
+API_KEY = os.getenv("GOOGLE_API_KEY")
+CSE_ID = os.getenv("GOOGLE_CSE_ID")
 
 # Set the SameSite attribute for session cookies
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
@@ -319,6 +322,55 @@ def calculate_token_usage(user_id, start_date, end_date):
                 total_tokens += entry["token_use"]
 
     return total_tokens
+
+
+# REST API route to search Google using the Custom Search API
+@app.route('/api/search', methods=['GET'])
+def google_search():
+    MAX_URL_LENGTH = 2048  # Google's maximum URL length limit
+
+    query = request.args.get('query')
+    num_results = int(request.args.get('num', 10))
+    
+    if not query:
+        return jsonify({"error": "Query parameter is required"}), 400
+    
+    # Construct base URL and parameters
+    base_url = "https://www.googleapis.com/customsearch/v1"
+    params = {
+        "key": API_KEY,
+        "cx": CSE_ID,
+        "q": query,
+        "num": min(num_results, 10)
+    }
+
+    # Calculate current URL length
+    full_url = f"{base_url}?{urllib.parse.urlencode(params)}"
+    if len(full_url) > MAX_URL_LENGTH:
+        # Calculate max query length
+        extra_chars = len(full_url) - len(query) - MAX_URL_LENGTH
+        query = query[:len(query) - extra_chars]  # Trim query to fit within the limit
+
+        # Re-encode the URL with trimmed query
+        params["q"] = query
+        full_url = f"{base_url}?{urllib.parse.urlencode(params)}"
+    
+    response = requests.get(full_url)
+    results = response.json()
+    
+    if "error" in results:
+        return jsonify({"error": results['error']['message']}), 500
+    
+    # Format results
+    search_results = [
+        {
+            "title": item.get("title"),
+            "link": item.get("link"),
+            "snippet": item.get("snippet")
+        } for item in results.get("items", [])
+    ]
+    
+    return jsonify(search_results)
 
 
 # Function to create a Letta agent for the user
@@ -688,7 +740,8 @@ Here's how I might talk:
             "conversation_search_date",
             "send_message",
             "archival_memory_insert",
-            "archival_memory_search"
+            "archival_memory_search",
+            "google_search"
         ]
     }
 
@@ -781,9 +834,7 @@ def send_letta_server_message(user_id, agent_name, message, roomid):
                         # Parse arguments to extract actual message content
                         arguments_json = json.loads(arguments)                        
 
-                        function_message = arguments_json.get("message", "")
-                        print("function_message: ")
-                        print(function_message)
+                        function_message = arguments_json.get("message", "")                        
                         
                         # Simulate typing for the extracted message content
                         pseudo_stream_message(function_message)
@@ -898,9 +949,7 @@ def send_letta_message(user_id, current_user, agent_name, message, roomid):
                         # Parse arguments to extract actual message content
                         arguments_json = json.loads(arguments)                        
 
-                        function_message = arguments_json.get("message", "")
-                        print("function_message: ")
-                        print(function_message)
+                        function_message = arguments_json.get("message", "")                        
                         
                         # Simulate typing for the extracted message content
                         pseudo_stream_message(function_message)
