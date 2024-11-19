@@ -31,19 +31,17 @@ werkzeug_logger = logging.getLogger('werkzeug')
 werkzeug_logger.addFilter(WerkzeugFilter())
 logging.getLogger('werkzeug').setLevel(logging.WARNING)
 
+
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
-API_KEY = os.getenv("GOOGLE_API_KEY")
-CSE_ID = os.getenv("GOOGLE_CSE_ID")
 
 # Set the SameSite attribute for session cookies
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
-
 
 
 # Set up OAuth
@@ -338,8 +336,8 @@ def google_search():
     # Construct base URL and parameters
     base_url = "https://www.googleapis.com/customsearch/v1"
     params = {
-        "key": API_KEY,
-        "cx": CSE_ID,
+        "key": os.getenv("GOOGLE_API_KEY"),
+        "cx": os.getenv("GOOGLE_CSE_ID"),
         "q": query,
         "num": min(num_results, 10)
     }
@@ -371,6 +369,106 @@ def google_search():
     ]
     
     return jsonify(search_results)
+
+
+@app.route('/api/weather/current', methods=['GET'])
+def get_current_weather():
+    fahrenheit_countries = ["US", "BS", "BZ", "KY", "PW"]
+
+    # Retrieve user_id from the request
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({"error": "user_id is required"}), 400
+
+    # Retrieve currentUser from session
+    current_user = session.get('currentUser')
+    if not current_user or str(current_user.get('user_id')) != user_id:
+        return jsonify({"error": "Invalid or missing session for this user"}), 401
+
+    # Retrieve location details from the request
+    city = request.args.get('city')
+    state = request.args.get('state')
+    country = request.args.get('country')
+    if not city or not country:
+        return jsonify({"error": "City and Country are required"}), 400
+
+    # Check if requested location matches currentUser's location
+    if (city == current_user.get('City') and
+        state == current_user.get('State') and
+        country == current_user.get('Country')):
+        lat, lon = current_user.get('Latitude'), current_user.get('Longitude')
+    else:
+        address = f"city={city}&state={state}&country={country}"
+        geocode_url = f"https://geocode.maps.co/search?{address}&api_key={os.environ.get("GEOCODE_API_KEY")}"        
+        geocode_response = requests.get(geocode_url).json()
+        lat, lon = geocode_response[0]['lat'], geocode_response[0]['lon']
+
+    # Set userUnits based on the country
+    userUnits = "imperial" if country in fahrenheit_countries else "metric"
+
+    # Call OpenWeather API
+    weather_url = f"https://api.openweathermap.org/data/2.5/weather"
+    weather_params = {
+        "lat": lat,
+        "lon": lon,
+        "appid": os.getenv("WEATHER_API_KEY"),
+        "units": userUnits
+    }
+    weather_response = requests.get(weather_url, params=weather_params)
+    if weather_response.status_code == 200:
+        return jsonify(weather_response.json())
+    else:
+        return jsonify({"error": "Weather API failed"}), weather_response.status_code
+
+
+@app.route('/api/weather/forecast', methods=['GET'])
+def get_weather_forecast():
+    fahrenheit_countries = ["US", "BS", "BZ", "KY", "PW"]
+
+    # Retrieve user_id from the request
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({"error": "user_id is required"}), 400
+
+    # Retrieve currentUser from session
+    current_user = session.get('currentUser')
+    if not current_user or str(current_user.get('user_id')) != user_id:
+        return jsonify({"error": "Invalid or missing session for this user"}), 401
+
+    # Retrieve location details from the request
+    city = request.args.get('city')
+    state = request.args.get('state')
+    country = request.args.get('country')
+    if not city or not country:
+        return jsonify({"error": "City and Country are required"}), 400
+
+    # Check if requested location matches currentUser's location
+    if (city == current_user.get('City') and
+        state == current_user.get('State') and
+        country == current_user.get('Country')):
+        lat, lon = current_user.get('Latitude'), current_user.get('Longitude')
+    else:
+        address = f"city={city}&state={state}&country={country}"
+        geocode_url = f"https://geocode.maps.co/search?{address}&api_key={os.environ.get("GEOCODE_API_KEY")}"        
+        geocode_response = requests.get(geocode_url).json()
+        lat, lon = geocode_response[0]['lat'], geocode_response[0]['lon']
+
+    # Set userUnits based on the country
+    userUnits = "imperial" if country in fahrenheit_countries else "metric"
+
+    # Call OpenWeather API
+    weather_url = f"api.openweathermap.org/data/2.5/forecast"
+    weather_params = {
+        "lat": lat,
+        "lon": lon,
+        "appid": os.getenv("WEATHER_API_KEY"),
+        "units": userUnits
+    }
+    weather_response = requests.get(weather_url, params=weather_params)
+    if weather_response.status_code == 200:
+        return jsonify(weather_response.json())
+    else:
+        return jsonify({"error": "Weather API failed"}), weather_response.status_code
 
 
 # Function to create a Letta agent for the user
@@ -708,7 +806,7 @@ Here's how I might talk:
         },
         "metadata_": {
             "persona": f"I am {persona_name.capitalize()}, a friendly human working in the Personal Assistant firm, JillAI.",
-            "human": f"Name: {current_user.get('FirstName')} {current_user.get('LastName')}, Gender: {current_user.get('Gender')}, Age: {user_age}, Location: {current_user.get('ZipCode')}"
+            "human": f"Name: {current_user.get('FirstName')} {current_user.get('LastName')}, Gender: {current_user.get('Gender')}, Age: {user_age}, User_ID: {current_user.get('user_id')}, Location: {current_user.get('City')} {current_user.get('State')}, {current_user.get('Country')}."
         },
         "embedding_config": {
             "embedding_endpoint_type": "openai",
@@ -720,7 +818,7 @@ Here's how I might talk:
         "memory": {
             "memory": {
                 'human': {
-                    'value': f"Name: {current_user.get('FirstName')} {current_user.get('LastName')}, Gender: {current_user.get('Gender')}, Age: {user_age}, Location: {current_user.get('ZipCode')}",
+                    'value': f"Name: {current_user.get('FirstName')} {current_user.get('LastName')}, Gender: {current_user.get('Gender')}, Age: {user_age}, User_ID: {current_user.get('user_id')}, Location: {current_user.get('City')} {current_user.get('State')}, {current_user.get('Country')}.",
                     'limit': 2000,
                     'name': f'{current_user.get('FirstName')}',
                     'label': 'human',
@@ -741,7 +839,9 @@ Here's how I might talk:
             "send_message",
             "archival_memory_insert",
             "archival_memory_search",
-            "google_search"
+            "google_search",
+            "get_current_weather",
+            "get_weather_forecast"
         ]
     }
 
@@ -1105,14 +1205,13 @@ def register():
             geocode_url = f"https://geocode.maps.co/reverse?lat={latitude}&lon={longitude}&api_key={os.environ.get("GEOCODE_API_KEY")}"
             try:
                 time.sleep(1.1)
-                geocode_response = requests.get(geocode_url).json()
-                print("JSON Response: ", geocode_response)
+                geocode_response = requests.get(geocode_url).json()                
 
                 # Extract state
                 State = geocode_response.get("address", {}).get("state")
 
                 # Extract city or town
-                City = geocode_response.get("address", {}).get("city", geocode_response.get("address", {}).get("town"))
+                City = geocode_response.get("address", {}).get("city", geocode_response.get("address", {}).get("town"), geocode_response.get("address", {}).get("village"), geocode_response.get("address", {}).get("hamlet"))
             except ValueError:
                 print("Failed to parse JSON: ", geocode_response)
                 State = "Unknown"
@@ -1125,8 +1224,7 @@ def register():
         if time_response["hasDayLightSaving"] == True:            
             # Access the nested 'dstStart' and 'dstEnd' within 'dstInterval'
             dst_start_iso = time_response.get("dstInterval", {}).get("dstStart")
-            dst_end_iso = time_response.get("dstInterval", {}).get("dstEnd")
-            print(f"DST Start: {dst_start_iso}, DST End: {dst_end_iso}")
+            dst_end_iso = time_response.get("dstInterval", {}).get("dstEnd")            
 
             # Convert to datetime objects
             dst_start_toformat = datetime.fromisoformat(dst_start_iso.replace("Z", "+00:00"))
@@ -1151,9 +1249,7 @@ def register():
         if timezone_info["has_dst_bool"] == True:
             has_dst = "1"
         else:
-            has_dst = "0"
-
-        print(f"Timezone Info: {timezone_info}")
+            has_dst = "0"        
 
         # Map the genderValue to the corresponding string
         gender = {
@@ -1221,7 +1317,8 @@ def register():
             )
             
             login_user(user)  # Log the user in
-            
+            session['currentUser'] = user.to_dict()  # Use your User object's to_dict method
+
             # Return success with first_login flag
             return jsonify({'success': True, 'first_login': True})
 
@@ -1281,7 +1378,8 @@ def login():
             )
             
             # Log the user in using Flask-Login's login_user function
-            login_user(user)  
+            login_user(user)
+            session['currentUser'] = user.to_dict()  # Use your User object's to_dict method
             
             # Flash a success message and redirect to the chat room
             flash('Logged in successfully.', 'success')
@@ -1300,8 +1398,7 @@ def update_preferences():
     try:
         # Extract the data from the request body
         data = request.get_json()
-        print(data)
-        
+                
         # Get the current user's ID from Flask-Login
         user_id = current_user.user_id
 
@@ -1341,23 +1438,21 @@ def update_preferences():
 
         # Geocode to get latitude and longitude
         if "zipCode" in data:
-            geocode_url = f"https://geocode.maps.co/search?postalcode={data['ZipCode']}&country=US&api_key={os.environ.get("GEOCODE_API_KEY")}"
-            print(geocode_url)
+            geocode_url = f"https://geocode.maps.co/search?postalcode={data['ZipCode']}&country=US&api_key={os.environ.get("GEOCODE_API_KEY")}"            
         
         if ('State' in data or 'City' in data) and 'Country' in data:
             address = f"city={data['City']}&state={data['State']}&country={data['Country']}"
             geocode_url = f"https://geocode.maps.co/search?{address}&api_key={os.environ.get("GEOCODE_API_KEY")}"
         
         if "zipCode" in data or (('State' in data or 'City' in data) and 'Country' in data):
-            geocode_response = requests.get(geocode_url).json()
-            print(geocode_response)
+            geocode_response = requests.get(geocode_url).json()            
             latitude, longitude = geocode_response[0]['lat'], geocode_response[0]['lon']
 
         # If US user, use the geocode API to get the city and state
         if "zipCode" in data:
             geocode_url = f"https://geocode.maps.co/reverse?lat={latitude}&lon={longitude}&api_key={os.environ.get("GEOCODE_API_KEY")}"
             geocode_response = requests.get(geocode_url).json()
-            print(geocode_response)
+
             # Extract state
             State = geocode_response.get("address", {}).get("state")
             cursor.execute("UPDATE Users SET State = %s WHERE user_id = %s", (State, user_id))
@@ -1434,6 +1529,10 @@ def update_preferences():
 
         # Commit the changes and close the connection
         connection.commit()
+
+        # Update session['currentUser']
+        session['currentUser'] = current_user.to_dict()
+
         cursor.close()
         connection.close()
 
