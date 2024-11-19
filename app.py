@@ -380,41 +380,69 @@ def get_current_weather():
     if not user_id:
         return jsonify({"error": "user_id is required"}), 400
 
-    # Retrieve currentUser from session
-    current_user = session.get('currentUser')
-    if not current_user or str(current_user.get('user_id')) != user_id:
-        return jsonify({"error": "Invalid or missing session for this user"}), 401
-
     # Retrieve location details from the request
     city = request.args.get('city')
     state = request.args.get('state')
     country = request.args.get('country')
-    if not city or not country:
-        return jsonify({"error": "City and Country are required"}), 400
+    if not city or not country or not state:
+        return jsonify({"error": "City, State, and Country are required"}), 400
 
-    # Check if requested location matches currentUser's location
-    if (city == current_user.get('City') and
-        state == current_user.get('State') and
-        country == current_user.get('Country')):
-        lat, lon = current_user.get('Latitude'), current_user.get('Longitude')
-    else:
-        address = f"city={city}&state={state}&country={country}"
-        geocode_url = f"https://geocode.maps.co/search?{address}&api_key={os.environ.get("GEOCODE_API_KEY")}"        
-        geocode_response = requests.get(geocode_url).json()
-        lat, lon = geocode_response[0]['lat'], geocode_response[0]['lon']
+    try:
+        # Establish a database connection
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
 
-    # Set userUnits based on the country
-    userUnits = "imperial" if country in fahrenheit_countries else "metric"
+        # Fetch user details from the database
+        cursor.execute(
+            """
+            SELECT City, State, Country, Lat, Lon
+            FROM Users
+            WHERE user_id = %s
+            """,
+            (user_id,)
+        )
+        user = cursor.fetchone()
 
-    # Call OpenWeather API
-    weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units={userUnits}&appid={os.getenv("WEATHER_API_KEY")}"    
-    weather_response = requests.get(weather_url)
-    print(weather_response)
+        # If user not found
+        if not user:
+            return jsonify({"error": "User not found"}), 404
 
-    if weather_response.status_code == 200:
-        return jsonify(weather_response.json())
-    else:
-        return jsonify({"error": "Weather API failed"}), weather_response.status_code, weather_response.json()
+        # Check if requested location matches currentUser's location
+        if city == user['City'] and state == user['State'] and country == user['Country']:
+            lat, lon = user['Lat'], user['Lon']
+        else:
+            # Use Geocoding API to resolve lat/lon for the requested location
+            address = f"city={city}&state={state}&country={country}"
+            geocode_url = f"https://geocode.maps.co/search?{address}&api_key={os.environ.get('GEOCODE_API_KEY')}"
+            geocode_response = requests.get(geocode_url).json()
+
+            if not geocode_response:
+                return jsonify({"error": "Geocoding failed"}), 400
+
+            lat, lon = geocode_response[0]['lat'], geocode_response[0]['lon']
+
+        # Set userUnits based on the country
+        userUnits = "imperial" if country in fahrenheit_countries else "metric"
+
+        # Call OpenWeather API
+        weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units={userUnits}&appid={os.getenv("WEATHER_API_KEY")}"
+        
+        weather_response = requests.get(weather_url)
+        print(weather_response)
+
+        # Handle OpenWeather API response
+        if weather_response.status_code == 200:
+            return jsonify(weather_response.json())
+        else:
+            return jsonify({"error": "Weather API failed"}), weather_response.status_code, weather_response.json()
+
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {e}"}), 500
+
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
 
 
 @app.route('/api/weather/forecast', methods=['GET'])
@@ -426,41 +454,69 @@ def get_weather_forecast():
     if not user_id:
         return jsonify({"error": "user_id is required"}), 400
 
-    # Retrieve currentUser from session
-    current_user = session.get('currentUser')
-    if not current_user or str(current_user.get('user_id')) != user_id:
-        return jsonify({"error": "Invalid or missing session for this user"}), 401
-
     # Retrieve location details from the request
     city = request.args.get('city')
     state = request.args.get('state')
     country = request.args.get('country')
-    if not city or not country:
-        return jsonify({"error": "City and Country are required"}), 400
+    if not city or not country or not state:
+        return jsonify({"error": "City, State, and Country are required"}), 400
 
-    # Check if requested location matches currentUser's location
-    if (city == current_user.get('City') and
-        state == current_user.get('State') and
-        country == current_user.get('Country')):
-        lat, lon = current_user.get('Latitude'), current_user.get('Longitude')
-    else:
-        address = f"city={city}&state={state}&country={country}"
-        geocode_url = f"https://geocode.maps.co/search?{address}&api_key={os.environ.get("GEOCODE_API_KEY")}"        
-        geocode_response = requests.get(geocode_url).json()
-        lat, lon = geocode_response[0]['lat'], geocode_response[0]['lon']
+    try:
+        # Establish a database connection
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
 
-    # Set userUnits based on the country
-    userUnits = "imperial" if country in fahrenheit_countries else "metric"
+        # Fetch user details from the database
+        cursor.execute(
+            """
+            SELECT City, State, Country, Lat, Lon
+            FROM Users
+            WHERE user_id = %s
+            """,
+            (user_id,)
+        )
+        user = cursor.fetchone()
 
-    # Call OpenWeather API
-    weather_url = f"api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units={userUnits}&appid={os.getenv("WEATHER_API_KEY")}"    
-    weather_response = requests.get(weather_url)
-    print(weather_response)
+        # If user not found
+        if not user:
+            return jsonify({"error": "User not found"}), 404
 
-    if weather_response.status_code == 200:
-        return jsonify(weather_response.json())
-    else:
-        return jsonify({"error": "Weather API failed"}), weather_response.status_code, weather_response.json()
+        # Check if requested location matches currentUser's location
+        if city == user['City'] and state == user['State'] and country == user['Country']:
+            lat, lon = user['Lat'], user['Lon']
+        else:
+            # Use Geocoding API to resolve lat/lon for the requested location
+            address = f"city={city}&state={state}&country={country}"
+            geocode_url = f"https://geocode.maps.co/search?{address}&api_key={os.environ.get('GEOCODE_API_KEY')}"
+            geocode_response = requests.get(geocode_url).json()
+
+            if not geocode_response:
+                return jsonify({"error": "Geocoding failed"}), 400
+
+            lat, lon = geocode_response[0]['lat'], geocode_response[0]['lon']
+
+        # Set userUnits based on the country
+        userUnits = "imperial" if country in fahrenheit_countries else "metric"
+
+        # Call OpenWeather API
+        weather_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units={userUnits}&appid={os.getenv("WEATHER_API_KEY")}"
+        
+        weather_response = requests.get(weather_url)
+        print(weather_response)
+
+        # Handle OpenWeather API response
+        if weather_response.status_code == 200:
+            return jsonify(weather_response.json())
+        else:
+            return jsonify({"error": "Weather API failed"}), weather_response.status_code, weather_response.json()
+
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {e}"}), 500
+
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
 
 
 # Function to create a Letta agent for the user
