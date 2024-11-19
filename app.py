@@ -407,18 +407,14 @@ def get_current_weather():
     userUnits = "imperial" if country in fahrenheit_countries else "metric"
 
     # Call OpenWeather API
-    weather_url = f"https://api.openweathermap.org/data/2.5/weather"
-    weather_params = {
-        "lat": lat,
-        "lon": lon,
-        "appid": os.getenv("WEATHER_API_KEY"),
-        "units": userUnits
-    }
-    weather_response = requests.get(weather_url, params=weather_params)
+    weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units={userUnits}&appid={os.getenv("WEATHER_API_KEY")}"    
+    weather_response = requests.get(weather_url)
+    print(weather_response)
+
     if weather_response.status_code == 200:
         return jsonify(weather_response.json())
     else:
-        return jsonify({"error": "Weather API failed"}), weather_response.status_code
+        return jsonify({"error": "Weather API failed"}), weather_response.status_code, weather_response.json()
 
 
 @app.route('/api/weather/forecast', methods=['GET'])
@@ -457,18 +453,14 @@ def get_weather_forecast():
     userUnits = "imperial" if country in fahrenheit_countries else "metric"
 
     # Call OpenWeather API
-    weather_url = f"api.openweathermap.org/data/2.5/forecast"
-    weather_params = {
-        "lat": lat,
-        "lon": lon,
-        "appid": os.getenv("WEATHER_API_KEY"),
-        "units": userUnits
-    }
-    weather_response = requests.get(weather_url, params=weather_params)
+    weather_url = f"api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units={userUnits}&appid={os.getenv("WEATHER_API_KEY")}"    
+    weather_response = requests.get(weather_url)
+    print(weather_response)
+
     if weather_response.status_code == 200:
         return jsonify(weather_response.json())
     else:
-        return jsonify({"error": "Weather API failed"}), weather_response.status_code
+        return jsonify({"error": "Weather API failed"}), weather_response.status_code, weather_response.json()
 
 
 # Function to create a Letta agent for the user
