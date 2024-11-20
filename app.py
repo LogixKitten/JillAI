@@ -424,8 +424,8 @@ def get_current_weather():
         # Set userUnits based on the country
         userUnits = "imperial" if country in fahrenheit_countries else "metric"
 
-        # Call OpenWeather API
-        weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units={userUnits}&appid={os.getenv("WEATHER_API_KEY")}"
+        # Call OpenWeather API       
+        weather_url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units={userUnits}&exclude=minutely,hourly&appid={os.getenv("WEATHER_API_KEY")}"
         
         weather_response = requests.get(weather_url)
         print(weather_response)
@@ -499,7 +499,7 @@ def get_weather_forecast():
         userUnits = "imperial" if country in fahrenheit_countries else "metric"
 
         # Call OpenWeather API
-        weather_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units={userUnits}&appid={os.getenv("WEATHER_API_KEY")}"
+        weather_url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units={userUnits}&exclude=minutely,hourly&appid={os.getenv("WEATHER_API_KEY")}"
         
         weather_response = requests.get(weather_url)
         print(weather_response)
