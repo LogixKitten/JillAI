@@ -325,50 +325,63 @@ def calculate_token_usage(user_id, start_date, end_date):
 # REST API route to search Google using the Custom Search API
 @app.route('/api/search', methods=['GET'])
 def google_search():
-    MAX_URL_LENGTH = 2048  # Google's maximum URL length limit
+    MAX_URL_LENGTH = 2048  # Google's maximum URL Length limit
 
+    # Retrieve query parameters from the request
     query = request.args.get('query')
     num_results = int(request.args.get('num', 10))
-    
+    search_type = request.args.get('search_type', 'text')  # Default to "text"
+
     if not query:
         return jsonify({"error": "Query parameter is required"}), 400
-    
+
     # Construct base URL and parameters
     base_url = "https://www.googleapis.com/customsearch/v1"
     params = {
         "key": os.getenv("GOOGLE_API_KEY"),
         "cx": os.getenv("GOOGLE_CSE_ID"),
         "q": query,
-        "num": min(num_results, 10)
+        "num": min(num_results, 10),
     }
+
+    # Add image search parameter if requested
+    if search_type == "image":
+        params["searchType"] = "image"
 
     # Calculate current URL length
     full_url = f"{base_url}?{urllib.parse.urlencode(params)}"
     if len(full_url) > MAX_URL_LENGTH:
-        # Calculate max query length
+        # Trim query to fit within the URL length limit
         extra_chars = len(full_url) - len(query) - MAX_URL_LENGTH
-        query = query[:len(query) - extra_chars]  # Trim query to fit within the limit
-
-        # Re-encode the URL with trimmed query
+        query = query[:len(query) - extra_chars]  # Trim the query
         params["q"] = query
         full_url = f"{base_url}?{urllib.parse.urlencode(params)}"
-    
+
+    # Send the request to Google's API
     response = requests.get(full_url)
     results = response.json()
-    
+
     if "error" in results:
         return jsonify({"error": results['error']['message']}), 500
-    
+
     # Format results
-    search_results = [
-        {
+    search_results = []
+    for item in results.get("items", []):
+        result = {
             "title": item.get("title"),
             "link": item.get("link"),
-            "snippet": item.get("snippet")
-        } for item in results.get("items", [])
-    ]
-    
+            "snippet": item.get("snippet"),
+        }
+
+        # Add additional formatting for images
+        if search_type == "image":
+            result["mime"] = item.get("mime")  # Image MIME type
+            result["image"] = item.get("link")  # Direct image link
+
+        search_results.append(result)
+
     return jsonify(search_results)
+
 
 
 @app.route('/api/weather/current', methods=['GET'])
@@ -428,8 +441,7 @@ def get_current_weather():
         weather_url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units={userUnits}&exclude=minutely,hourly&appid={os.getenv("WEATHER_API_KEY")}"
         
         weather_response = requests.get(weather_url)
-        print(weather_response)
-
+        
         # Handle OpenWeather API response
         if weather_response.status_code == 200:
             return jsonify(weather_response.json())
@@ -501,8 +513,7 @@ def get_weather_forecast():
         # Call OpenWeather API
         weather_url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units={userUnits}&exclude=minutely,hourly&appid={os.getenv("WEATHER_API_KEY")}"
         
-        weather_response = requests.get(weather_url)
-        print(weather_response)
+        weather_response = requests.get(weather_url)        
 
         # Handle OpenWeather API response
         if weather_response.status_code == 200:
