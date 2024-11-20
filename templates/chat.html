@@ -96,14 +96,42 @@
         const md = window.markdownit();
     
         // Override the default image renderer
-        const defaultRender = md.renderer.rules.image || function(tokens, idx, options, env, self) {
+        const defaultImageRender = md.renderer.rules.image || function(tokens, idx, options, env, self) {
             return self.renderToken(tokens, idx, options);
         };
     
         md.renderer.rules.image = function(tokens, idx, options, env, self) {
             // Add a class to the <img> tag
             tokens[idx].attrPush(['class', 'search-image']); // Append the custom class
-            return defaultRender(tokens, idx, options, env, self);
+            return defaultImageRender(tokens, idx, options, env, self);
+        };
+    
+        // Override the default link renderer
+        const defaultLinkRender = md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
+            return self.renderToken(tokens, idx, options);
+        };
+    
+        md.renderer.rules.link_open = function(tokens, idx, options, env, self) {
+            const href = tokens[idx].attrs.find(attr => attr[0] === 'href')[1];
+    
+            // Check if the link is a YouTube URL
+            if (href.includes('youtube.com/watch?v=')) {
+                const videoId = href.split('v=')[1].split('&')[0]; // Extract the video ID
+                // Return an iframe element for the YouTube video
+                return `
+                    <iframe 
+                        src="https://www.youtube.com/embed/${videoId}" 
+                        width="560" 
+                        height="315" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+            }
+    
+            // For non-YouTube links, use the default renderer
+            return defaultLinkRender(tokens, idx, options, env, self);
         };
     </script>    
     <script src="static/js/chat.js"></script>

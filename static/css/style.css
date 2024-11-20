@@ -697,6 +697,13 @@
   border-radius: 5%;
 }
 
+iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 /* Styling for messages sent by the assistant (left-aligned) */
 .incoming-container {   
   text-align: left;  
