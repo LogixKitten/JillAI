@@ -92,8 +92,20 @@
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
     <script>
+        // Initialize markdown-it
         const md = window.markdownit();
-    </script>
+    
+        // Override the default image renderer
+        const defaultRender = md.renderer.rules.image || function(tokens, idx, options, env, self) {
+            return self.renderToken(tokens, idx, options);
+        };
+    
+        md.renderer.rules.image = function(tokens, idx, options, env, self) {
+            // Add a class to the <img> tag
+            tokens[idx].attrPush(['class', 'search-image']); // Append the custom class
+            return defaultRender(tokens, idx, options, env, self);
+        };
+    </script>    
     <script src="static/js/chat.js"></script>
 
     <script type="module">
