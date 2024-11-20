@@ -383,7 +383,6 @@ def google_search():
     return jsonify(search_results)
 
 
-
 @app.route('/api/weather/current', methods=['GET'])
 def get_current_weather():
     fahrenheit_countries = ["US", "BS", "BZ", "KY", "PW"]
