@@ -1306,7 +1306,7 @@ def register():
                     geocode_address.get("village")or
                     geocode_address.get("hamlet")
                 )
-                                
+
             except ValueError:
                 print("Failed to parse JSON: ", geocode_response)
                 State = "Unknown"
@@ -1710,6 +1710,7 @@ def delete_account():
     try:
         # Save current user id to a temporary variable
         temp_user_id = current_user.user_id
+        print(f"Attempting to delete account for user_id: {temp_user_id}")
 
         # Get MongoDB collections
         user_index_collection, chat_history_collection = get_mongo_collections()
@@ -1718,31 +1719,35 @@ def delete_account():
         user_index = user_index_collection.find_one({"user_id": temp_user_id})
         
         # If user agents exist, delete them
-        if user_index and "UserAgents" in user_index:
+        if user_index:
+            print(f"UserAgents found for user_id: {temp_user_id}, clearing agents and chat history...")
             for agent in user_index["UserAgents"]:
                 agent_id = agent.get("agent_id")
                 if agent_id:
                     delete_letta_agent(agent_id)
-                
-        # Delete chat history collection entries for the user
-        chat_history_collection.delete_many({"user_id": temp_user_id})
+        
+            # Delete chat history collection entries for the user
+            chat_history_collection.delete_many({"user_id": temp_user_id})
 
-        # Delete the user index from MongoDB
-        user_index_collection.delete_one({"user_id": temp_user_id})
+            # Delete the user index from MongoDB
+            user_index_collection.delete_one({"user_id": temp_user_id})
 
         # Log the user out
         logout_user()
-
-        # Clear Flask Session Data
-        session.clear()        
-
+        
         # Establish a database connection
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        # Fetch the current token and revoke Google permissions
-        current_token = cursor.execute("SELECT TokenID FROM Token WHERE user_id = %s", (temp_user_id,))
-        revoke_google_permissions(current_token) # Revoke Google permissions
+        cursor.execute("SELECT TokenID FROM Token WHERE user_id = %s", (temp_user_id,))
+        current_token = cursor.fetchone()  # Fetch the result as a single row
+
+        if current_token != 0:  # Check if the result is not 0
+            current_token = current_token[0]  # Extract the TokenID from the result tuple
+            print(f"Current Token: {current_token}")
+            print("Token Found... Revoking Google Permissions")
+            revoke_google_permissions(current_token)  # Revoke Google permissions
+
 
         # Delete the user entry from the Users table (cascade delete will handle related tables)
         cursor.execute("DELETE FROM Users WHERE user_id = %s", (temp_user_id,))
@@ -1750,7 +1755,10 @@ def delete_account():
         # Commit the changes and close the connection
         connection.commit()
         cursor.close()
-        connection.close()        
+        connection.close()
+
+        # Clear Flask Session Data
+        session.clear()
 
         # Flash success message
         flash('Your account has been deleted successfully.', 'success')
@@ -1759,7 +1767,7 @@ def delete_account():
     except Exception as e:
         print(f"Error deleting account: {e}")
         flash('Failed to delete account. Please try again later.', 'error')
-        return redirect(url_for('account_settings'))
+        return redirect(url_for('home'))
 
 
 @app.route('/google_auth')
