@@ -1293,13 +1293,20 @@ def register():
             geocode_url = f"https://geocode.maps.co/reverse?lat={latitude}&lon={longitude}&api_key={os.environ.get("GEOCODE_API_KEY")}"
             try:
                 time.sleep(1.1)
-                geocode_response = requests.get(geocode_url).json()                
+                geocode_response = requests.get(geocode_url).json()
+
+                geocode_address = geocode_response.get("address", {})
 
                 # Extract state
-                State = geocode_response.get("address", {}).get("state")
+                State = geocode_address.get("state")
 
-                # Extract city or town
-                City = geocode_response.get("address", {}).get("city", geocode_response.get("address", {}).get("town"), geocode_response.get("address", {}).get("village"), geocode_response.get("address", {}).get("hamlet"))
+                City = (
+                    geocode_address.get("city") or 
+                    geocode_address.get("town") or
+                    geocode_address.get("village")or
+                    geocode_address.get("hamlet")
+                )
+                                
             except ValueError:
                 print("Failed to parse JSON: ", geocode_response)
                 State = "Unknown"
