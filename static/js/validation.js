@@ -257,11 +257,7 @@ document.getElementById('submitFormButton').addEventListener('click', function()
     formData.state = state;
     formData.country = country;
   }
-
-  // Log each key and its type in formData before sending the request
-  for (const [key, value] of Object.entries(formData)) {
-    console.log(`${key}:`, value, `(${typeof value})`);
-  }
+    
 
   // Send the data to the Flask route via POST request
   fetch('/register', {

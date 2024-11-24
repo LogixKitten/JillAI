@@ -60,8 +60,7 @@ document.addEventListener("DOMContentLoaded", function() {
           option.value = code;
           option.textContent = name;
           if (code === userCountry) { 
-            option.selected = true;  // Set the selected attribute if the country matches the user's country
-            console.log("Setting selected country:", name);
+            option.selected = true;  // Set the selected attribute if the country matches the user's country            
           }
           countrySelect.appendChild(option);
         }

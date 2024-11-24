@@ -1181,6 +1181,37 @@ def delete_letta_agent(agent_id):
         print(f"Response: {response.text}")
 
 
+def get_valid_google_token(token_id, refresh_token, expiration_time):
+    current_time = datetime.now(timezone.utc)  # Use timezone-aware datetime in UTC
+    if expiration_time <= current_time + timedelta(minutes=2):
+        print("Token is expired or about to expire. Refreshing...")
+        token_url = "https://oauth2.googleapis.com/token"
+        payload = {
+            "client_id": os.getenv('GOOGLE_CLIENT_ID'),
+            "client_secret": os.getenv('GOOGLE_CLIENT_SECRET'),
+            "refresh_token": refresh_token,
+            "grant_type": "refresh_token",
+        }
+        try:
+            response = requests.post(token_url, data=payload)
+            response_data = response.json()
+
+            if "access_token" in response_data:
+                new_token = response_data["access_token"]
+                expires_in = response_data.get("expires_in", 3600)  # Default to 1 hour
+                new_expiration_time = current_time + timedelta(seconds=expires_in)
+                return new_token, new_expiration_time
+            else:
+                print(f"Error refreshing token: {response_data}")
+                return None, None
+        except Exception as e:
+            print(f"Exception during token refresh: {e}")
+            return None, None
+    else:
+        print("Token is still valid. Using current token.")
+        return token_id, expiration_time
+
+
 def revoke_google_permissions(token):
     response = requests.post(
         'https://oauth2.googleapis.com/revoke',
@@ -1739,15 +1770,38 @@ def delete_account():
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        cursor.execute("SELECT TokenID FROM Token WHERE user_id = %s", (temp_user_id,))
-        current_token = cursor.fetchone()  # Fetch the result as a single row
+        from datetime import timezone
 
-        if current_token != 0:  # Check if the result is not 0
-            current_token = current_token[0]  # Extract the TokenID from the result tuple
-            print(f"Current Token: {current_token}")
-            print("Token Found... Revoking Google Permissions")
-            revoke_google_permissions(current_token)  # Revoke Google permissions
+        # Assuming expiration_time is fetched as a naive datetime object
+        cursor.execute("SELECT TokenID, RefreshID, ExpirationTime FROM Token WHERE user_id = %s", (temp_user_id,))
+        token_data = cursor.fetchone()  # Fetch TokenID, RefreshID, and ExpirationTime
 
+        if token_data:
+            token_id, refresh_token, expiration_time = token_data
+
+            # Make expiration_time timezone-aware in UTC
+            if expiration_time.tzinfo is None:  # Check if it's naive
+                expiration_time = expiration_time.replace(tzinfo=timezone.utc)
+
+            # Use the refreshed token function
+            token_id, new_expiration_time = get_valid_google_token(
+                token_id=token_id,
+                refresh_token=refresh_token,
+                expiration_time=expiration_time
+            )
+
+            # Update the database if a new token is retrieved
+            if new_expiration_time:
+                cursor.execute(
+                    "UPDATE Token SET TokenID = %s, ExpirationTime = %s WHERE user_id = %s",
+                    (token_id, new_expiration_time.isoformat(sep=" "), temp_user_id)
+                )
+                connection.commit()
+
+            # Revoke permissions using the valid token
+            if token_id:                
+                print("Revoking Google permissions...")
+                revoke_google_permissions(token_id)  # Use valid token
 
         # Delete the user entry from the Users table (cascade delete will handle related tables)
         cursor.execute("DELETE FROM Users WHERE user_id = %s", (temp_user_id,))
@@ -1762,6 +1816,7 @@ def delete_account():
 
         # Flash success message
         flash('Your account has been deleted successfully.', 'success')
+        print(f"Account deleted successfully for user_id: {temp_user_id}")
         return redirect(url_for('home'))
 
     except Exception as e:
