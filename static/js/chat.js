@@ -451,9 +451,10 @@ function convertUTCToLocal(utcTimestamp) {
 
 ///////////////-------- HANDLE DATE LOCALIZATION --------//////////////////////////
 function convertUTCToLocalDate(utcTimestamp) {
+    // Ensure the input timestamp is treated as UTC
     const utcDate = new Date(utcTimestamp);
 
-    // Retrieve timezone information from CurrentUser
+    // Retrieve the user's timezone from CurrentUser
     const timezone = CurrentUser["TimeZone"];
 
     // Set up formatting options for the full date with weekday
@@ -462,23 +463,27 @@ function convertUTCToLocalDate(utcTimestamp) {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
     };
 
     // Format the date to the user's local time
     const dateFormatter = new Intl.DateTimeFormat('en-US', options);
     const formattedDate = dateFormatter.format(utcDate);
 
-    // Get the day number to add the appropriate suffix (e.g., 1st, 2nd, 3rd, 4th)
-    const day = utcDate.getDate();
-    const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
-                   (day % 10 === 2 && day !== 12) ? 'nd' :
-                   (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
+    // Get the localized day directly from the formatted date
+    const localizedDate = new Date(
+        utcDate.toLocaleString('en-US', { timeZone: timezone })
+    );
 
-    // Split the formatted date into parts to rearrange
-    const [weekday, month, date, year] = formattedDate.split(' ');
+    // Get the day number for suffix (e.g., 1st, 2nd, 3rd)
+    const day = localizedDate.getDate();
+    const suffix =
+        day % 10 === 1 && day !== 11 ? 'st' :
+        day % 10 === 2 && day !== 12 ? 'nd' :
+        day % 10 === 3 && day !== 13 ? 'rd' : 'th';
 
-    // Construct the final formatted date string
+    // Decompose the formatted date for rearrangement
+    const [weekday, month, , year] = formattedDate.split(' '); // Skip default day
     return `${weekday} - ${month} ${day}${suffix}, ${year}`;
 }
 
