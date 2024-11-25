@@ -383,6 +383,7 @@ def google_search():
     return jsonify(search_results)
 
 
+# REST API route to get the current weather using the OpenWeather API
 @app.route('/api/weather/current', methods=['GET'])
 def get_current_weather():
     fahrenheit_countries = ["US", "BS", "BZ", "KY", "PW"]
@@ -456,6 +457,7 @@ def get_current_weather():
             connection.close()
 
 
+# REST API route to get the 8-day weather forecast using the OpenWeather API
 @app.route('/api/weather/forecast', methods=['GET'])
 def get_weather_forecast():
     fahrenheit_countries = ["US", "BS", "BZ", "KY", "PW"]
@@ -527,6 +529,411 @@ def get_weather_forecast():
         if connection:
             cursor.close()
             connection.close()
+
+
+# REST API route to get all a list of all Google Calendars for the user
+@app.route('/api/google/calendars', methods=['GET'])
+def get_google_calendars():
+    try:
+        # Retrieve user_id from query parameters
+        user_id = request.args.get('user_id')
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
+
+        # Connect to the database to retrieve user token information
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Fetch the TokenID, RefreshToken, and ExpirationTime for the user
+        cursor.execute(
+            "SELECT TokenID, RefreshToken, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
+        )
+        token_data = cursor.fetchone()
+
+        if not token_data:
+            return jsonify({"error": "User not found or no token data available"}), 404
+
+        token_id, refresh_token, expiration_time = token_data
+        expiration_time = expiration_time.replace(tzinfo=timezone.utc)
+
+        # Ensure we have a valid token
+        token_id, new_expiration_time = get_valid_google_token(
+            token_id=token_id,
+            refresh_token=refresh_token,
+            expiration_time=expiration_time
+        )
+
+        # Update the database if the token was refreshed
+        if new_expiration_time:
+            cursor.execute(
+                "UPDATE Token SET TokenID = %s, ExpirationTime = %s WHERE user_id = %s",
+                (token_id, new_expiration_time.isoformat(sep=" "), user_id)
+            )
+            connection.commit()
+
+        # Make the API call to Google Calendar
+        google_calendar_url = "https://www.googleapis.com/calendar/v3/users/me/calendarList"
+        headers = {"Authorization": f"Bearer {token_id}"}
+        response = requests.get(google_calendar_url, headers=headers)
+
+        # Handle the response from Google API
+        if response.status_code == 200:
+            calendar_list = response.json()
+            return jsonify(calendar_list), 200
+        else:
+            print(f"Error fetching calendars: {response.json()}")
+            return jsonify({"error": "Failed to fetch calendars"}), response.status_code
+
+    except Exception as e:
+        print(f"Error in get_google_calendars: {e}")
+        return jsonify({"error": "An internal server error occurred"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+# REST API route to get all a list of all Google Calendar Events between a start and end date for the user
+@app.route('/api/google/events', methods=['GET'])
+def get_google_events():
+    try:
+        # Retrieve query parameters
+        user_id = request.args.get('user_id')
+        calendar_id = request.args.get('calendar_id', 'primary')  # Default to 'primary'
+        start_date = request.args.get('start')  # Optional start date
+        end_date = request.args.get('end')      # Optional end date
+
+        # Validate user_id
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
+
+        # Set default start and end times if not provided
+        if not start_date:
+            start_date = datetime.now(timezone.utc).isoformat()
+        if not end_date:
+            # Default to 1 week from now if end_date is not provided
+            end_date = (datetime.now(timezone.utc) + timedelta(weeks=1)).isoformat()
+
+        # Validate date format
+        try:
+            datetime.fromisoformat(start_date.replace("Z", "+00:00"))
+            datetime.fromisoformat(end_date.replace("Z", "+00:00"))
+        except ValueError:
+            return jsonify({"error": "Invalid date format. Use ISO 8601 format."}), 400
+
+        # Connect to the database
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Fetch the TokenID, RefreshToken, and ExpirationTime for the user
+        cursor.execute(
+            "SELECT TokenID, RefreshToken, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
+        )
+        token_data = cursor.fetchone()
+
+        if not token_data:
+            return jsonify({"error": "User not found or no token data available"}), 404
+
+        token_id, refresh_token, expiration_time = token_data
+        expiration_time = expiration_time.replace(tzinfo=timezone.utc)
+
+        # Ensure we have a valid token
+        token_id, new_expiration_time = get_valid_google_token(
+            token_id=token_id,
+            refresh_token=refresh_token,
+            expiration_time=expiration_time
+        )
+
+        # Update the database if the token was refreshed
+        if new_expiration_time:
+            cursor.execute(
+                "UPDATE Token SET TokenID = %s, ExpirationTime = %s WHERE user_id = %s",
+                (token_id, new_expiration_time.isoformat(sep=" "), user_id)
+            )
+            connection.commit()
+
+        # Make the API call to Google Calendar for events
+        google_events_url = f"https://www.googleapis.com/calendar/v3/calendars/{calendar_id}/events"
+        headers = {"Authorization": f"Bearer {token_id}"}
+        params = {
+            "timeMin": start_date,
+            "timeMax": end_date,
+            "singleEvents": True,  # Expand recurring events into individual instances
+            "orderBy": "startTime"  # Order events by start time
+        }
+        response = requests.get(google_events_url, headers=headers, params=params)
+
+        # Handle the response from Google API
+        if response.status_code == 200:
+            events = response.json().get("items", [])
+            return jsonify(events), 200
+        else:
+            print(f"Error fetching events: {response.json()}")
+            return jsonify({"error": "Failed to fetch events"}), response.status_code
+
+    except Exception as e:
+        print(f"Error in get_google_events: {e}")
+        return jsonify({"error": "An internal server error occurred"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+# REST API route to create a new Google Calendar Event for the user
+@app.route('/api/google/create_event', methods=['POST'])
+def create_google_event():
+    try:
+        # Retrieve data from the request JSON payload
+        data = request.json
+
+        user_id = data.get('user_id')
+        calendar_id = data.get('calendar_id', 'primary')  # Default to 'primary'
+        summary = data.get('summary')
+        description = data.get('description')
+        start_time = data.get('start')
+        end_time = data.get('end')
+        attendees = data.get('attendees', [])
+
+        # Validate required fields
+        if not user_id or not summary or not start_time or not end_time:
+            return jsonify({"error": "user_id, summary, start, and end are required"}), 400
+
+        # Validate date formats
+        try:
+            datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+            datetime.fromisoformat(end_time.replace("Z", "+00:00"))
+        except ValueError:
+            return jsonify({"error": "Invalid date format. Use ISO 8601 format."}), 400
+
+        # Connect to the database
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Fetch the TokenID, RefreshToken, and ExpirationTime for the user
+        cursor.execute(
+            "SELECT TokenID, RefreshToken, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
+        )
+        token_data = cursor.fetchone()
+
+        if not token_data:
+            return jsonify({"error": "User not found or no token data available"}), 404
+
+        token_id, refresh_token, expiration_time = token_data
+        expiration_time = expiration_time.replace(tzinfo=timezone.utc)
+
+        # Ensure we have a valid token
+        token_id, new_expiration_time = get_valid_google_token(
+            token_id=token_id,
+            refresh_token=refresh_token,
+            expiration_time=expiration_time
+        )
+
+        # Update the database if the token was refreshed
+        if new_expiration_time:
+            cursor.execute(
+                "UPDATE Token SET TokenID = %s, ExpirationTime = %s WHERE user_id = %s",
+                (token_id, new_expiration_time.isoformat(sep=" "), user_id)
+            )
+            connection.commit()
+
+        # Prepare the event data for the Google Calendar API
+        event_data = {
+            "summary": summary,
+            "description": description,
+            "start": {"dateTime": start_time, "timeZone": "UTC"},
+            "end": {"dateTime": end_time, "timeZone": "UTC"},
+        }
+
+        # Add attendees if provided
+        if attendees:
+            event_data["attendees"] = [{"email": email} for email in attendees]
+
+        # Make the API call to Google Calendar
+        google_events_url = f"https://www.googleapis.com/calendar/v3/calendars/{calendar_id}/events"
+        headers = {"Authorization": f"Bearer {token_id}"}
+        response = requests.post(google_events_url, headers=headers, json=event_data)
+
+        # Handle the response from Google API
+        if response.status_code == 200 or response.status_code == 201:
+            created_event = response.json()
+            return jsonify(created_event), 201
+        else:
+            print(f"Error creating event: {response.json()}")
+            return jsonify({"error": "Failed to create event"}), response.status_code
+
+    except Exception as e:
+        print(f"Error in create_google_event: {e}")
+        return jsonify({"error": "An internal server error occurred"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+# REST API route to modify an existing Google Calendar Event for the user
+@app.route('/api/google/update_event', methods=['POST'])
+def update_google_event():
+    try:
+        # Retrieve data from the request JSON payload
+        data = request.json
+
+        user_id = data.get('user_id')
+        calendar_id = data.get('calendar_id', 'primary')  # Default to 'primary'
+        event_id = data.get('event_id')
+
+        # Optional fields for the event
+        summary = data.get('summary')
+        description = data.get('description')
+        start_time = data.get('start')
+        end_time = data.get('end')
+        attendees = data.get('attendees')
+
+        # Validate required fields
+        if not user_id or not event_id:
+            return jsonify({"error": "user_id and event_id are required"}), 400
+
+        # Validate date formats if provided
+        try:
+            if start_time:
+                datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+            if end_time:
+                datetime.fromisoformat(end_time.replace("Z", "+00:00"))
+        except ValueError:
+            return jsonify({"error": "Invalid date format. Use ISO 8601 format."}), 400
+
+        # Connect to the database
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Fetch the TokenID, RefreshToken, and ExpirationTime for the user
+        cursor.execute(
+            "SELECT TokenID, RefreshToken, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
+        )
+        token_data = cursor.fetchone()
+
+        if not token_data:
+            return jsonify({"error": "User not found or no token data available"}), 404
+
+        token_id, refresh_token, expiration_time = token_data
+        expiration_time = expiration_time.replace(tzinfo=timezone.utc)
+
+        # Ensure we have a valid token
+        token_id, new_expiration_time = get_valid_google_token(
+            token_id=token_id,
+            refresh_token=refresh_token,
+            expiration_time=expiration_time
+        )
+
+        # Update the database if the token was refreshed
+        if new_expiration_time:
+            cursor.execute(
+                "UPDATE Token SET TokenID = %s, ExpirationTime = %s WHERE user_id = %s",
+                (token_id, new_expiration_time.isoformat(sep=" "), user_id)
+            )
+            connection.commit()
+
+        # Prepare the event data for the update
+        event_data = {}
+        if summary:
+            event_data["summary"] = summary
+        if description:
+            event_data["description"] = description
+        if start_time:
+            event_data["start"] = {"dateTime": start_time, "timeZone": "UTC"}
+        if end_time:
+            event_data["end"] = {"dateTime": end_time, "timeZone": "UTC"}
+        if attendees:
+            event_data["attendees"] = [{"email": email} for email in attendees]
+
+        # Make the API call to Google Calendar to update the event
+        google_events_url = f"https://www.googleapis.com/calendar/v3/calendars/{calendar_id}/events/{event_id}"
+        headers = {"Authorization": f"Bearer {token_id}"}
+        response = requests.put(google_events_url, headers=headers, json=event_data)
+
+        # Handle the response from Google API
+        if response.status_code == 200:
+            updated_event = response.json()
+            return jsonify(updated_event), 200
+        else:
+            print(f"Error updating event: {response.json()}")
+            return jsonify({"error": "Failed to update event"}), response.status_code
+
+    except Exception as e:
+        print(f"Error in update_google_event: {e}")
+        return jsonify({"error": "An internal server error occurred"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+# REST API route to deleting an existing Google Calendar Event for the user
+@app.route('/api/google/delete_event', methods=['POST'])
+def delete_google_event():
+    try:
+        # Retrieve data from the request JSON payload
+        data = request.json
+
+        user_id = data.get('user_id')
+        calendar_id = data.get('calendar_id', 'primary')  # Default to 'primary'
+        event_id = data.get('event_id')
+
+        # Validate required fields
+        if not user_id or not event_id:
+            return jsonify({"error": "user_id and event_id are required"}), 400
+
+        # Connect to the database
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Fetch the TokenID, RefreshToken, and ExpirationTime for the user
+        cursor.execute(
+            "SELECT TokenID, RefreshToken, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
+        )
+        token_data = cursor.fetchone()
+
+        if not token_data:
+            return jsonify({"error": "User not found or no token data available"}), 404
+
+        token_id, refresh_token, expiration_time = token_data
+        expiration_time = expiration_time.replace(tzinfo=timezone.utc)
+
+        # Ensure we have a valid token
+        token_id, new_expiration_time = get_valid_google_token(
+            token_id=token_id,
+            refresh_token=refresh_token,
+            expiration_time=expiration_time
+        )
+
+        # Update the database if the token was refreshed
+        if new_expiration_time:
+            cursor.execute(
+                "UPDATE Token SET TokenID = %s, ExpirationTime = %s WHERE user_id = %s",
+                (token_id, new_expiration_time.isoformat(sep=" "), user_id)
+            )
+            connection.commit()
+
+        # Make the API call to Google Calendar to delete the event
+        google_events_url = f"https://www.googleapis.com/calendar/v3/calendars/{calendar_id}/events/{event_id}"
+        headers = {"Authorization": f"Bearer {token_id}"}
+        response = requests.delete(google_events_url, headers=headers)
+
+        # Handle the response from Google API
+        if response.status_code == 204:
+            # Success - No content response
+            return jsonify({"message": "Event deleted successfully"}), 200
+        else:
+            print(f"Error deleting event: {response.json()}")
+            return jsonify({"error": "Failed to delete event"}), response.status_code
+
+    except Exception as e:
+        print(f"Error in delete_google_event: {e}")
+        return jsonify({"error": "An internal server error occurred"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
 
 
 # Function to create a Letta agent for the user
