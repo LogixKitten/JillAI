@@ -1364,7 +1364,8 @@ Here's how I might talk:
             "archival_memory_search",
             "google_search",
             "get_current_weather",
-            "get_weather_forecast"
+            "get_weather_forecast",
+            "google_calendar_tool"
         ]
     }
 
