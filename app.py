@@ -2224,25 +2224,26 @@ def delete_account():
             if expiration_time.tzinfo is None:  # Check if it's naive
                 expiration_time = expiration_time.replace(tzinfo=timezone.utc)
 
-            # Use the refreshed token function
-            token_id, new_expiration_time = get_valid_google_token(
-                token_id=token_id,
-                refresh_token=refresh_token,
-                expiration_time=expiration_time
-            )
-
-            # Update the database if a new token is retrieved
-            if new_expiration_time:
-                cursor.execute(
-                    "UPDATE Token SET TokenID = %s, ExpirationTime = %s WHERE user_id = %s",
-                    (token_id, new_expiration_time.isoformat(sep=" "), temp_user_id)
+            if token_id != "0":                
+                # Use the refreshed token function
+                token_id, new_expiration_time = get_valid_google_token(
+                    token_id=token_id,
+                    refresh_token=refresh_token,
+                    expiration_time=expiration_time
                 )
-                connection.commit()
 
-            # Revoke permissions using the valid token
-            if token_id:                
-                print("Revoking Google permissions...")
-                revoke_google_permissions(token_id)  # Use valid token
+                # Update the database if a new token is retrieved
+                if new_expiration_time:
+                    cursor.execute(
+                        "UPDATE Token SET TokenID = %s, ExpirationTime = %s WHERE user_id = %s",
+                        (token_id, new_expiration_time.isoformat(sep=" "), temp_user_id)
+                    )
+                    connection.commit()
+
+                # Revoke permissions using the valid token
+                if token_id:                
+                    print("Revoking Google permissions...")
+                    revoke_google_permissions(token_id)  # Use valid token
 
         # Delete the user entry from the Users table (cascade delete will handle related tables)
         cursor.execute("DELETE FROM Users WHERE user_id = %s", (temp_user_id,))
