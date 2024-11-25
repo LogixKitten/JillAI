@@ -1949,7 +1949,7 @@ def login():
         else:
             # Flash an error message for invalid credentials
             flash('Invalid username or password.', 'error')
-            return render_template('login.html')
+            return redirect(url_for('login'))
 
     return render_template('login.html')
 
@@ -2155,6 +2155,13 @@ def load_user(user_id):
     if user_data:
         return User(user_id=user_data['user_id'], FirstName=user_data['FirstName'], LastName=user_data['LastName'], Username=user_data['Username'], DateOfBirth=user_data['DateOfBirth'], email=user_data['email'], ZipCode=user_data['ZipCode'], State=user_data['State'], City=user_data['City'], Country=user_data['Country'], Latitude=user_data['Lat'], Longitude=user_data['Lon'], TimeZone=user_data['TimeZone'], HasDST=user_data['HasDST'], DSTStart=user_data['DSTStart'], DSTEnd=user_data['DSTEnd'], Gender=user_data['Gender'], Avatar=user_data['ProfilePicture'], UIMode=user_preferences['UImode'], CurrentPersona=user_preferences['CurrentPersona'], Admin=user_data['admin'])
     return None
+
+
+# Custom unauthorized handler
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    flash("Must be logged in to access that page.", "warning")
+    return redirect(url_for('login'))  # Redirect to the login page
 
 
 @app.route('/logout')
