@@ -544,9 +544,9 @@ def get_google_calendars():
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        # Fetch the TokenID, RefreshToken, and ExpirationTime for the user
+        # Fetch the TokenID, RefreshID, and ExpirationTime for the user
         cursor.execute(
-            "SELECT TokenID, RefreshToken, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
+            "SELECT TokenID, RefreshID, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
         )
         token_data = cursor.fetchone()
 
@@ -625,9 +625,9 @@ def get_google_events():
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        # Fetch the TokenID, RefreshToken, and ExpirationTime for the user
+        # Fetch the TokenID, RefreshID, and ExpirationTime for the user
         cursor.execute(
-            "SELECT TokenID, RefreshToken, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
+            "SELECT TokenID, RefreshID, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
         )
         token_data = cursor.fetchone()
 
@@ -710,9 +710,9 @@ def create_google_event():
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        # Fetch the TokenID, RefreshToken, and ExpirationTime for the user
+        # Fetch the TokenID, RefreshID, and ExpirationTime for the user
         cursor.execute(
-            "SELECT TokenID, RefreshToken, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
+            "SELECT TokenID, RefreshID, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
         )
         token_data = cursor.fetchone()
 
@@ -806,9 +806,9 @@ def update_google_event():
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        # Fetch the TokenID, RefreshToken, and ExpirationTime for the user
+        # Fetch the TokenID, RefreshID, and ExpirationTime for the user
         cursor.execute(
-            "SELECT TokenID, RefreshToken, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
+            "SELECT TokenID, RefreshID, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
         )
         token_data = cursor.fetchone()
 
@@ -887,9 +887,9 @@ def delete_google_event():
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        # Fetch the TokenID, RefreshToken, and ExpirationTime for the user
+        # Fetch the TokenID, RefreshID, and ExpirationTime for the user
         cursor.execute(
-            "SELECT TokenID, RefreshToken, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
+            "SELECT TokenID, RefreshID, ExpirationTime FROM Token WHERE user_id = %s", (user_id,)
         )
         token_data = cursor.fetchone()
 
