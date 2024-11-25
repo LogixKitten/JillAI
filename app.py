@@ -694,6 +694,13 @@ def create_google_event():
         start_time = data.get('start')
         end_time = data.get('end')
         attendees = data.get('attendees', [])
+        time_zone = data.get('timeZone', 'UTC')
+
+        # Handle nested start and end times
+        if isinstance(start_time, dict):
+            start_time = start_time.get('dateTime')
+        if isinstance(end_time, dict):
+            end_time = end_time.get('dateTime')
 
         # Validate required fields
         if not user_id or not summary or not start_time or not end_time:
@@ -705,6 +712,13 @@ def create_google_event():
             datetime.fromisoformat(end_time.replace("Z", "+00:00"))
         except ValueError:
             return jsonify({"error": "Invalid date format. Use ISO 8601 format."}), 400
+
+        # Deserialize attendees if needed
+        if isinstance(attendees, str):
+            try:
+                attendees = json.loads(attendees)
+            except json.JSONDecodeError:
+                return jsonify({"error": "Invalid JSON format for attendees"}), 400
 
         # Connect to the database
         connection = get_db_connection()
@@ -741,8 +755,8 @@ def create_google_event():
         event_data = {
             "summary": summary,
             "description": description,
-            "start": {"dateTime": start_time, "timeZone": "UTC"},
-            "end": {"dateTime": end_time, "timeZone": "UTC"},
+            "start": {"dateTime": start_time, "timeZone": time_zone},
+            "end": {"dateTime": end_time, "timeZone": time_zone},
         }
 
         # Add attendees if provided
@@ -788,10 +802,17 @@ def update_google_event():
         start_time = data.get('start')
         end_time = data.get('end')
         attendees = data.get('attendees')
+        time_zone = data.get('timeZone', 'UTC')  # Default to UTC
 
         # Validate required fields
         if not user_id or not event_id:
             return jsonify({"error": "user_id and event_id are required"}), 400
+
+        # Handle nested start and end times
+        if isinstance(start_time, dict):
+            start_time = start_time.get('dateTime')
+        if isinstance(end_time, dict):
+            end_time = end_time.get('dateTime')
 
         # Validate date formats if provided
         try:
@@ -801,6 +822,13 @@ def update_google_event():
                 datetime.fromisoformat(end_time.replace("Z", "+00:00"))
         except ValueError:
             return jsonify({"error": "Invalid date format. Use ISO 8601 format."}), 400
+
+        # Deserialize attendees if needed
+        if isinstance(attendees, str):
+            try:
+                attendees = json.loads(attendees)
+            except json.JSONDecodeError:
+                return jsonify({"error": "Invalid JSON format for attendees"}), 400
 
         # Connect to the database
         connection = get_db_connection()
@@ -840,9 +868,9 @@ def update_google_event():
         if description:
             event_data["description"] = description
         if start_time:
-            event_data["start"] = {"dateTime": start_time, "timeZone": "UTC"}
+            event_data["start"] = {"dateTime": start_time, "timeZone": time_zone}
         if end_time:
-            event_data["end"] = {"dateTime": end_time, "timeZone": "UTC"}
+            event_data["end"] = {"dateTime": end_time, "timeZone": time_zone}
         if attendees:
             event_data["attendees"] = [{"email": email} for email in attendees]
 
@@ -2176,9 +2204,7 @@ def delete_account():
         # Establish a database connection
         connection = get_db_connection()
         cursor = connection.cursor()
-
-        from datetime import timezone
-
+        
         # Assuming expiration_time is fetched as a naive datetime object
         cursor.execute("SELECT TokenID, RefreshID, ExpirationTime FROM Token WHERE user_id = %s", (temp_user_id,))
         token_data = cursor.fetchone()  # Fetch TokenID, RefreshID, and ExpirationTime
