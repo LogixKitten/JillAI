@@ -1904,52 +1904,59 @@ def login():
         cursor.execute('SELECT * FROM Users WHERE Username = %s', (username,))
         user_data = cursor.fetchone()
 
-        # Fetch user preferences from Preferences table
-        cursor.execute('SELECT * FROM Preferences WHERE user_id = %s', (user_data['user_id'],))
-        user_preferences = cursor.fetchone()
+        if user_data:
+            # Fetch user preferences from Preferences table
+            cursor.execute('SELECT * FROM Preferences WHERE user_id = %s', (user_data['user_id'],))
+            user_preferences = cursor.fetchone()
 
-        cursor.close()
-        conn.close()
+            cursor.close()
+            conn.close()
 
-        # Check if the user exists and the password is correct
-        if user_data and bcrypt.check_password_hash(user_data['Passwd'], password):
-            
-            # Create an instance of the User class
-            user = User(
-                user_id=user_data['user_id'],
-                FirstName=user_data['FirstName'],
-                LastName=user_data['LastName'],
-                Username=user_data['Username'],
-                DateOfBirth=user_data['DateOfBirth'],
-                email=user_data['email'],
-                ZipCode=user_data['ZipCode'],
-                State=user_data['State'],
-                City=user_data['City'],
-                Country=user_data['Country'],
-                Latitude=user_data['Lat'],
-                Longitude=user_data['Lon'],
-                TimeZone=user_data['TimeZone'],
-                HasDST=user_data['HasDST'],
-                DSTStart=user_data['DSTStart'],
-                DSTEnd=user_data['DSTEnd'],
-                Gender=user_data['Gender'],
-                Avatar=user_data['ProfilePicture'],
-                Admin=user_data['admin'],
-                UIMode=user_preferences['UImode'],
-                CurrentPersona=user_preferences['CurrentPersona']                
-            )
-            
-            # Log the user in using Flask-Login's login_user function
-            login_user(user)
-            session['currentUser'] = user.to_dict()  # Use your User object's to_dict method
-            
-            # Flash a success message and redirect to the chat room
-            flash('Logged in successfully.', 'success')
-            return redirect(url_for('dashboard'))
+            # Check if the user exists and the password is correct
+            if bcrypt.check_password_hash(user_data['Passwd'], password):
+                
+                # Create an instance of the User class
+                user = User(
+                    user_id=user_data['user_id'],
+                    FirstName=user_data['FirstName'],
+                    LastName=user_data['LastName'],
+                    Username=user_data['Username'],
+                    DateOfBirth=user_data['DateOfBirth'],
+                    email=user_data['email'],
+                    ZipCode=user_data['ZipCode'],
+                    State=user_data['State'],
+                    City=user_data['City'],
+                    Country=user_data['Country'],
+                    Latitude=user_data['Lat'],
+                    Longitude=user_data['Lon'],
+                    TimeZone=user_data['TimeZone'],
+                    HasDST=user_data['HasDST'],
+                    DSTStart=user_data['DSTStart'],
+                    DSTEnd=user_data['DSTEnd'],
+                    Gender=user_data['Gender'],
+                    Avatar=user_data['ProfilePicture'],
+                    Admin=user_data['admin'],
+                    UIMode=user_preferences['UImode'],
+                    CurrentPersona=user_preferences['CurrentPersona']                
+                )
+                
+                # Log the user in using Flask-Login's login_user function
+                login_user(user)
+                session['currentUser'] = user.to_dict()  # Use your User object's to_dict method
+                
+                # Flash a success message and redirect to the chat room
+                flash('Logged in successfully.', 'success')
+                return redirect(url_for('dashboard'))
+            else:
+                # Flash an error message for invalid credentials
+                flash('Invalid username or password.', 'error')
+                return redirect(url_for('login'))
         else:
+            cursor.close()
+            conn.close()
             # Flash an error message for invalid credentials
             flash('Invalid username or password.', 'error')
-            return redirect(url_for('login'))
+            return redirect(url_for('login'))        
 
     return render_template('login.html')
 
