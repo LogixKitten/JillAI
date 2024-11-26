@@ -167,7 +167,7 @@ socket.on('message', function(data) {
     const currentDate = convertUTCToLocalDate(date);
 
     // Check if the current message date is different from the previous message date
-    if (previousDate !== currentDate) {
+    if (previousDate !== currentDate) {        
         const dateDiv = document.createElement('div');
         dateDiv.classList.add('date-divider');
         const dateP = document.createElement('p');
@@ -346,7 +346,7 @@ socket.on('streamed_message', function(data) {
     const currentDate = convertUTCToLocalDate(date);
 
     // Check if the current message date is different from the previous message date
-    if (previousDate !== currentDate) {
+    if (previousDate !== currentDate) {        
         const dateDiv = document.createElement('div');
         dateDiv.classList.add('date-divider');
         const dateP = document.createElement('p');
@@ -452,7 +452,12 @@ function convertUTCToLocal(utcTimestamp) {
 ///////////////-------- HANDLE DATE LOCALIZATION --------//////////////////////////
 function convertUTCToLocalDate(utcTimestamp) {
     // Ensure the input timestamp is treated as UTC
-    const utcDate = new Date(utcTimestamp);
+    let utcDate;
+    if (utcTimestamp.endsWith("Z")) {
+        utcDate = new Date(utcTimestamp); // Already in ISO 8601 UTC format
+    } else {
+        utcDate = new Date(`${utcTimestamp}Z`); // Append 'Z' if missing
+    }
 
     // Retrieve the user's timezone from CurrentUser
     const timezone = CurrentUser["TimeZone"];
@@ -475,7 +480,7 @@ function convertUTCToLocalDate(utcTimestamp) {
         utcDate.toLocaleString('en-US', { timeZone: timezone })
     );
 
-    // Get the day number for suffix (e.g., 1st, 2nd, 3rd)
+    // Correctly get the day for the suffix based on the localized date
     const day = localizedDate.getDate();
     const suffix =
         day % 10 === 1 && day !== 11 ? 'st' :
