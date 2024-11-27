@@ -1998,11 +1998,11 @@ def recover_password():
         uppercase = random.choice(string.ascii_uppercase)
         lowercase = random.choice(string.ascii_lowercase)
         digit = random.choice(string.digits)
-        special_char = random.choice("!@#$%^&*")
+        special_char = random.choice("@$!%*?&")
 
         # Combine and shuffle
         temp_password = uppercase + lowercase + digit + special_char
-        temp_password += ''.join(random.choices(string.ascii_letters + string.digits + "!@#$%^&*", k=4))
+        temp_password += ''.join(random.choices(string.ascii_letters + string.digits + "@$!%*?&", k=4))
         temp_password = ''.join(random.sample(temp_password, len(temp_password)))
         hashed_password = bcrypt.generate_password_hash(temp_password).decode('utf-8')
 

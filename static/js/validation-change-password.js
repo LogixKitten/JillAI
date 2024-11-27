@@ -42,7 +42,7 @@ function validatePasswordField(passwordId, requirementsId, successMessageId) {
     const uppercase = /[A-Z]/.test(password);
     const lowercase = /[a-z]/.test(password);
     const number = /\d/.test(password);
-    const specialChar = /[!@#$%^&*]/.test(password);
+    const specialChar = /[@$!%*?&]/.test(password);
 
     requirementsBox.querySelector('#minLength').classList.toggle('valid', minLength);
     requirementsBox.querySelector('#uppercase').classList.toggle('valid', uppercase);
