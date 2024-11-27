@@ -15,9 +15,12 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Agbalumo">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope">
+    
+    <!-- jQuery CDN (latest version 3.x) -->
+    <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
-<body>
+<body>    
     <nav class="navbar navbar-expand-md sticky-top bg-dark py-3 navbar-dark" id="mainNav">
         <div class="container"><a class="navbar-brand d-flex align-items-center" href="/"><span class="bs-icon-md shadow-none d-flex justify-content-center align-items-center me-2 bs-icon"><img src="static/img/Logo.png" width="100" height="104"></span><span class="fw-bolder" style="font-family: 'Amatic SC', serif;font-weight: bold;font-size: 50px;">JillAI</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navcol-1">
@@ -36,6 +39,28 @@
     <section class="py-5">
         <div class="container py-5">
             <div class="row mb-4 mb-lg-5">
+                <!-- Password Recovery Modal -->
+                <div class="modal fade" id="recoverPasswordModal" tabindex="-1" aria-labelledby="recoverPasswordModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="recoverPasswordModalLabel">Recover Password</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="{{ url_for('recover_password') }}" method="POST">
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label">Enter your username:</label>
+                                        <input type="text" class="form-control" id="username" name="username" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Request Recovery</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-8 col-xl-6 text-center mx-auto">
                     <p class="fw-bold text-success mb-2">Login</p>
                     <h2 class="fw-bold">Welcome back</h2>
@@ -71,7 +96,10 @@
                                 <div class="mb-3"><input class="form-control" type="text" name="username" placeholder="User Name" required=""></div>
                                 <div class="mb-3"><input class="form-control" type="password" name="password" placeholder="Password" required=""></div>
                                 <div class="mb-3"><button class="btn btn-primary shadow d-block w-100" type="submit">Log in</button></div>
-                                <p class="text-muted">Forgot your password? Unfortunate...</p>
+                                <!-- Trigger Modal -->
+                                <p class="text-muted">
+                                    Forgot your password? <a href="#" data-bs-toggle="modal" data-bs-target="#recoverPasswordModal">Click here</a>
+                                </p>
                             </form>
                         </div>
                     </div>
