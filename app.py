@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_mail import Mail, Message
+import random, string
 import logging
 import requests
 import mysql.connector
@@ -19,6 +21,7 @@ from pymongo import MongoClient
 import tiktoken
 import time
 import urllib.parse
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -43,10 +46,19 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY')
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
 
+# Add these configurations to your app config
+app.config['MAIL_SERVER'] = os.getenv('ENV_MAIL_SERVER')
+app.config['MAIL_PORT'] = os.getenv('ENV_MAIL_PORT')
+app.config['MAIL_USE_TLS'] = os.getenv('ENV_MAIL_USE_TLS')
+app.config['MAIL_USERNAME'] = os.getenv('ENV_MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('ENV_MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('ENV_MAIL_DEFAULT_SENDER')
 
 # Set up OAuth
 oauth = OAuth(app)
 
+# Initialize Flask-Mail
+mail = Mail(app)
 
 google = oauth.register(
     name='google',
@@ -1939,14 +1951,19 @@ def login():
                     UIMode=user_preferences['UImode'],
                     CurrentPersona=user_preferences['CurrentPersona']                
                 )
-                
-                # Log the user in using Flask-Login's login_user function
-                login_user(user)
-                session['currentUser'] = user.to_dict()  # Use your User object's to_dict method
-                
-                # Flash a success message and redirect to the chat room
-                flash('Logged in successfully.', 'success')
-                return redirect(url_for('dashboard'))
+
+                if user_data['PasswordRecovery'] == 1:
+                    flash('You are using a temporary password. Please change it immediately.', 'warning')
+                    login_user(user)
+                    return redirect(url_for('change_password'))
+                else:
+                    # Log the user in using Flask-Login's login_user function
+                    login_user(user)
+                    session['currentUser'] = user.to_dict()  # Use your User object's to_dict method
+                    
+                    # Flash a success message and redirect to the chat room
+                    flash('Logged in successfully.', 'success')
+                    return redirect(url_for('dashboard'))
             else:
                 # Flash an error message for invalid credentials
                 flash('Invalid username or password.', 'error')
@@ -1959,6 +1976,96 @@ def login():
             return redirect(url_for('login'))        
 
     return render_template('login.html')
+
+
+@app.route('/recover_password', methods=['POST'])
+def recover_password():
+    username = request.form.get('username')
+
+    if not username:
+        flash('Please enter a username.', 'error')
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Check if the username exists
+    cursor.execute('SELECT user_id, FirstName, email FROM Users WHERE Username = %s', (username,))
+    user_data = cursor.fetchone()
+
+    if user_data:
+        # Define character sets
+        uppercase = random.choice(string.ascii_uppercase)
+        lowercase = random.choice(string.ascii_lowercase)
+        digit = random.choice(string.digits)
+        special_char = random.choice("!@#$%^&*")
+
+        # Combine and shuffle
+        temp_password = uppercase + lowercase + digit + special_char
+        temp_password += ''.join(random.choices(string.ascii_letters + string.digits + "!@#$%^&*", k=4))
+        temp_password = ''.join(random.sample(temp_password, len(temp_password)))
+        hashed_password = bcrypt.generate_password_hash(temp_password).decode('utf-8')
+
+        # Update the database with the temporary password and set the recovery flag
+        cursor.execute("UPDATE Users SET Passwd = %s, PasswordRecovery = 1 WHERE user_id = %s", (hashed_password, user_data['user_id']))
+        conn.commit()
+
+        # Send recovery email
+        try:
+            # Render the HTML template with the user's data
+            html_body = render_template('mailtemplate.html', user_data=user_data, temp_password=temp_password)            
+
+            msg = Message(
+                "Password Recovery - JillAI",
+                sender="support@jillai.tech",
+                recipients=[user_data['email']]
+            )
+            msg.html = html_body  # Set the HTML content
+            mail.send(msg)
+            flash('If the user exists, a recovery email has been sent to the registered address. Emails may take 5-10 minutes to arrive.', 'success')
+        except Exception as e:
+            flash(f"Failed to send recovery email: {e}", 'error')
+    else:
+        # Mimic a successful response for security
+        flash('If the user exists, a recovery email has been sent to the registered address. Emails may take 5-10 minutes to arrive.', 'success')
+
+    cursor.close()
+    conn.close()
+    return redirect(url_for('login'))
+
+
+@app.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if request.method == 'POST':
+        current_password = request.form.get('currentPassword')
+        new_password = request.form.get('newPassword')
+        confirm_password = request.form.get('confirmPassword')
+
+        if new_password != confirm_password:
+            flash('New password and confirmation do not match.', 'error')
+            return redirect(url_for('change_password'))
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Verify the current password
+        cursor.execute("SELECT Passwd FROM Users WHERE user_id = %s", (current_user.user_id,))
+        stored_password = cursor.fetchone()[0]
+
+        if bcrypt.check_password_hash(stored_password, current_password):
+            hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+            cursor.execute("UPDATE Users SET Passwd = %s, PasswordRecovery = 0 WHERE user_id = %s", (hashed_password, current_user.user_id))
+            conn.commit()
+            flash('Password updated successfully.', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Current password is incorrect.', 'error')
+
+        cursor.close()
+        conn.close()
+
+    return render_template('change_password.html')
 
 
 @app.route('/update_preferences', methods=['POST'])

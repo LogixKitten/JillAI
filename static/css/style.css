@@ -170,6 +170,51 @@
   height: 25px;
 }
 
+#togglePasswordBtn1 {
+  position: absolute;
+  top: 20%;
+  right: 15px;  
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+#togglePasswordBtn1 img {
+  width: 25px; /* Adjust to desired icon size */
+  height: 25px;
+}
+
+#togglePasswordBtn2 {
+  position: absolute;
+  top: 20%;
+  right: 15px;  
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+#togglePasswordBtn2 img {
+  width: 25px; /* Adjust to desired icon size */
+  height: 25px;
+}
+
+#togglePasswordBtn3 {
+  position: absolute;
+  top: 20%;
+  right: 15px;  
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+#togglePasswordBtn3 img {
+  width: 25px; /* Adjust to desired icon size */
+  height: 25px;
+}
+
 /* Password toggle button styling */
 .password-toggle {
   position: absolute;
