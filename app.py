@@ -568,6 +568,9 @@ def get_google_calendars():
         token_id, refresh_token, expiration_time = token_data
         expiration_time = expiration_time.replace(tzinfo=timezone.utc)
 
+        if token_id == "0":
+            return jsonify({"error": "User needs to connect their Google Account to use this feature"}), 200
+
         # Ensure we have a valid token
         token_id, new_expiration_time = get_valid_google_token(
             token_id=token_id,
@@ -648,6 +651,9 @@ def get_google_events():
 
         token_id, refresh_token, expiration_time = token_data
         expiration_time = expiration_time.replace(tzinfo=timezone.utc)
+
+        if token_id == "0":
+            return jsonify({"error": "User needs to connect their Google Account to use this feature"}), 200
 
         # Ensure we have a valid token
         token_id, new_expiration_time = get_valid_google_token(
@@ -747,6 +753,9 @@ def create_google_event():
 
         token_id, refresh_token, expiration_time = token_data
         expiration_time = expiration_time.replace(tzinfo=timezone.utc)
+
+        if token_id == "0":
+            return jsonify({"error": "User needs to connect their Google Account to use this feature"}), 200
 
         # Ensure we have a valid token
         token_id, new_expiration_time = get_valid_google_token(
@@ -858,6 +867,9 @@ def update_google_event():
         token_id, refresh_token, expiration_time = token_data
         expiration_time = expiration_time.replace(tzinfo=timezone.utc)
 
+        if token_id == "0":
+            return jsonify({"error": "User needs to connect their Google Account to use this feature"}), 200
+
         # Ensure we have a valid token
         token_id, new_expiration_time = get_valid_google_token(
             token_id=token_id,
@@ -938,6 +950,9 @@ def delete_google_event():
 
         token_id, refresh_token, expiration_time = token_data
         expiration_time = expiration_time.replace(tzinfo=timezone.utc)
+
+        if token_id == "0":
+            return jsonify({"error": "User needs to connect their Google Account to use this feature"}), 200
 
         # Ensure we have a valid token
         token_id, new_expiration_time = get_valid_google_token(

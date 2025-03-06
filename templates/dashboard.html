@@ -623,24 +623,29 @@
                     </div>
                     <hr>
                     <div>
-                    {% if token_required %}
-                        <!-- Display message and button for Google OAuth -->
-                        <p style="text-align: center;">
-                            You need to connect to Google to start chatting with your assistant.
-                        </p>
-                        <div class="text-center">
-                            <a href="{{ url_for('google_auth') }}" class="btn btn-google">
-                                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" style="width: 20px; height: 20px; margin-right: 8px;">
-                                Sign in with Google
-                            </a>
-                        </div>
-                    {% else %}
-                        <!-- Display button to begin chat -->
-                        <div class="text-center">
-                            <a href="{{ url_for('chat_room') }}" class="btn btn-success">Begin Chat</a>
-                        </div>
-                    {% endif %}
-                    
+                        {% if token_required %}
+                            <!-- Display message and buttons for Google OAuth or guest access -->
+                            <p style="text-align: center;">
+                                You need to connect to Google to access all features, or you can continue without connecting to simply start chatting.
+                            </p>
+                            <div class="text-center">
+                                <a href="{{ url_for('google_auth') }}" class="btn btn-google">
+                                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" style="width: 20px; height: 20px; margin-right: 8px;">
+                                    Sign in with Google
+                                </a>
+                            </div>
+                            <br>
+                            <div class="text-center">
+                                <a href="{{ url_for('chat_room', guest=True) }}" class="btn btn-secondary">
+                                    Continue Without Connecting
+                                </a>
+                            </div>
+                        {% else %}
+                            <!-- Display button to begin chat normally -->
+                            <div class="text-center">
+                                <a href="{{ url_for('chat_room') }}" class="btn btn-success">Begin Chat</a>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
