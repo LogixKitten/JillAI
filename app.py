@@ -546,10 +546,12 @@ def get_weather_forecast():
 # REST API route to get all a list of all Google Calendars for the user
 @app.route('/api/google/calendars', methods=['GET'])
 def get_google_calendars():
+    threw_error = False
     try:
         # Retrieve user_id from query parameters
         user_id = request.args.get('user_id')
         if not user_id:
+            threw_error = True            
             return jsonify({"error": "user_id is required"}), 400
 
         # Connect to the database to retrieve user token information
@@ -563,12 +565,18 @@ def get_google_calendars():
         token_data = cursor.fetchone()
 
         if not token_data:
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "User not found or no token data available"}), 404
 
         token_id, refresh_token, expiration_time = token_data
         expiration_time = expiration_time.replace(tzinfo=timezone.utc)
 
         if token_id == "0":
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "User needs to connect their Google Account to use this feature"}), 200
 
         # Ensure we have a valid token
@@ -597,6 +605,9 @@ def get_google_calendars():
             return jsonify(calendar_list), 200
         else:
             print(f"Error fetching calendars: {response.json()}")
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "Failed to fetch calendars"}), response.status_code
 
     except Exception as e:
@@ -604,13 +615,15 @@ def get_google_calendars():
         return jsonify({"error": "An internal server error occurred"}), 500
 
     finally:
-        cursor.close()
-        connection.close()
+        if not threw_error:
+            cursor.close()
+            connection.close()
 
 
 # REST API route to get all a list of all Google Calendar Events between a start and end date for the user
 @app.route('/api/google/events', methods=['GET'])
 def get_google_events():
+    threw_error = False
     try:
         # Retrieve query parameters
         user_id = request.args.get('user_id')
@@ -620,6 +633,7 @@ def get_google_events():
 
         # Validate user_id
         if not user_id:
+            threw_error = True
             return jsonify({"error": "user_id is required"}), 400
 
         # Set default start and end times if not provided
@@ -647,12 +661,18 @@ def get_google_events():
         token_data = cursor.fetchone()
 
         if not token_data:
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "User not found or no token data available"}), 404
 
         token_id, refresh_token, expiration_time = token_data
         expiration_time = expiration_time.replace(tzinfo=timezone.utc)
 
         if token_id == "0":
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "User needs to connect their Google Account to use this feature"}), 200
 
         # Ensure we have a valid token
@@ -687,6 +707,9 @@ def get_google_events():
             return jsonify(events), 200
         else:
             print(f"Error fetching events: {response.json()}")
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "Failed to fetch events"}), response.status_code
 
     except Exception as e:
@@ -694,13 +717,15 @@ def get_google_events():
         return jsonify({"error": "An internal server error occurred"}), 500
 
     finally:
-        cursor.close()
-        connection.close()
+        if not threw_error:
+            cursor.close()
+            connection.close()
 
 
 # REST API route to create a new Google Calendar Event for the user
 @app.route('/api/google/create_event', methods=['POST'])
 def create_google_event():
+    threw_error = False
     try:
         # Retrieve data from the request JSON payload
         data = request.json
@@ -722,6 +747,7 @@ def create_google_event():
 
         # Validate required fields
         if not user_id or not summary or not start_time or not end_time:
+            threw_error = True
             return jsonify({"error": "user_id, summary, start, and end are required"}), 400
 
         # Validate date formats
@@ -749,12 +775,18 @@ def create_google_event():
         token_data = cursor.fetchone()
 
         if not token_data:
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "User not found or no token data available"}), 404
 
         token_id, refresh_token, expiration_time = token_data
         expiration_time = expiration_time.replace(tzinfo=timezone.utc)
 
         if token_id == "0":
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "User needs to connect their Google Account to use this feature"}), 200
 
         # Ensure we have a valid token
@@ -795,6 +827,9 @@ def create_google_event():
             return jsonify(created_event), 201
         else:
             print(f"Error creating event: {response.json()}")
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "Failed to create event"}), response.status_code
 
     except Exception as e:
@@ -802,13 +837,15 @@ def create_google_event():
         return jsonify({"error": "An internal server error occurred"}), 500
 
     finally:
-        cursor.close()
-        connection.close()
+        if not threw_error:
+            cursor.close()
+            connection.close()
 
 
 # REST API route to modify an existing Google Calendar Event for the user
 @app.route('/api/google/update_event', methods=['POST'])
 def update_google_event():
+    threw_error = False
     try:
         # Retrieve data from the request JSON payload
         data = request.json
@@ -827,6 +864,7 @@ def update_google_event():
 
         # Validate required fields
         if not user_id or not event_id:
+            threw_error = True
             return jsonify({"error": "user_id and event_id are required"}), 400
 
         # Handle nested start and end times
@@ -862,12 +900,18 @@ def update_google_event():
         token_data = cursor.fetchone()
 
         if not token_data:
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "User not found or no token data available"}), 404
 
         token_id, refresh_token, expiration_time = token_data
         expiration_time = expiration_time.replace(tzinfo=timezone.utc)
 
         if token_id == "0":
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "User needs to connect their Google Account to use this feature"}), 200
 
         # Ensure we have a valid token
@@ -909,6 +953,9 @@ def update_google_event():
             return jsonify(updated_event), 200
         else:
             print(f"Error updating event: {response.json()}")
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "Failed to update event"}), response.status_code
 
     except Exception as e:
@@ -916,13 +963,15 @@ def update_google_event():
         return jsonify({"error": "An internal server error occurred"}), 500
 
     finally:
-        cursor.close()
-        connection.close()
+        if not threw_error:
+            cursor.close()
+            connection.close()
 
 
 # REST API route to deleting an existing Google Calendar Event for the user
 @app.route('/api/google/delete_event', methods=['POST'])
 def delete_google_event():
+    threw_error = False
     try:
         # Retrieve data from the request JSON payload
         data = request.json
@@ -933,6 +982,7 @@ def delete_google_event():
 
         # Validate required fields
         if not user_id or not event_id:
+            threw_error = True
             return jsonify({"error": "user_id and event_id are required"}), 400
 
         # Connect to the database
@@ -946,12 +996,18 @@ def delete_google_event():
         token_data = cursor.fetchone()
 
         if not token_data:
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "User not found or no token data available"}), 404
 
         token_id, refresh_token, expiration_time = token_data
         expiration_time = expiration_time.replace(tzinfo=timezone.utc)
 
         if token_id == "0":
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "User needs to connect their Google Account to use this feature"}), 200
 
         # Ensure we have a valid token
@@ -980,6 +1036,9 @@ def delete_google_event():
             return jsonify({"message": "Event deleted successfully"}), 200
         else:
             print(f"Error deleting event: {response.json()}")
+            threw_error = True
+            cursor.close()
+            connection.close()
             return jsonify({"error": "Failed to delete event"}), response.status_code
 
     except Exception as e:
@@ -987,8 +1046,9 @@ def delete_google_event():
         return jsonify({"error": "An internal server error occurred"}), 500
 
     finally:
-        cursor.close()
-        connection.close()
+        if not threw_error:
+            cursor.close()
+            connection.close()
 
 
 # Function to create a Letta agent for the user
